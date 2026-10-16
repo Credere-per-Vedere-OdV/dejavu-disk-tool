@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="it">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dejavu · Guida per gli operatori</title>
+<style>
+body{font:18px/1.65 system-ui,sans-serif;color:#172b40;background:#edf2f7;margin:0;padding:32px}
+main{max-width:800px;margin:auto;background:white;padding:32px 40px;border-radius:14px}
+h1{font-size:34px;line-height:1.2;margin-top:0}h2{font-size:22px}li{margin:10px 0}
+.brand{color:#0d6f70;font-weight:700;font-size:15px}.note{background:#fff3d5;padding:16px;border-radius:8px}
+table{border-collapse:collapse;width:100%}td{padding:14px 10px;border-bottom:1px solid #d4dee8;vertical-align:top}
+.ok{color:#146138}.bad{color:#a03025}.wait{color:#825800}
+@media print{body{background:white;padding:0}main{padding:15px;max-width:none}body{font-size:14px}h1{font-size:26px}}
+</style>
+<main>
+<p class="brand">PROGETTO DEJAVU · LABORATORIO DI RICICLO E TERAPIA OCCUPAZIONALE</p>
+<h1>Cancellare i dischi,<br>un gruppo alla volta</h1>
+<p class="note"><strong>Questa è una prima beta.</strong> Prima di affidarla al lavoro sulle donazioni, il responsabile tecnico deve completare il collaudo Windows. La modalità <strong>Simulazione</strong> permette di provare i pulsanti usando soltanto file di esempio.</p>
+<h2>Come lavorare</h2>
+<ol>
+<li><strong>Collega i dischi.</strong> Le docking devono essere alimentate. I dischi SATA interni si collegano a PC spento, salvo un banco già predisposto per l'inserimento a caldo.</li>
+<li><strong>Apri Dejavu dal collegamento ad AvviaDejavu.exe.</strong> Attendi il controllo degli aggiornamenti; se non c'è Internet, si apre la versione già installata. Se richiesto, autorizza l'avvio come amministratore.</li>
+<li><strong>Premi “Seleziona lotto” oppure seleziona i dischi singolarmente.</strong> Il pulsante sceglie le unità ammesse dai controlli preliminari. Controlla comunque modello, capacità e numero di serie sull'etichetta. I dischi protetti non si possono selezionare.</li>
+<li><strong>Chiudi le finestre di Esplora file e i programmi che usano i dischi scelti.</strong> Windows deve concedere al programma l'accesso esclusivo.</li>
+<li><strong>Premi “Avvia cancellazione”.</strong> Controlla l'elenco nella finestra di conferma e premi “Confermo, avvia”. Non ci sono livelli o algoritmi da scegliere.</li>
+<li><strong>Aspetta il termine.</strong> Per gli HDD il programma scrive e poi rilegge: a metà manca ancora la verifica. Per gli SSD controlla la cancellazione interna al dispositivo. Una barra animata indica un comando in corso, senza una percentuale misurabile. Lascia i dischi collegati e alimentati fino all'esito finale.</li>
+<li><strong>Leggi gli esiti e apri il rapporto.</strong> Il rapporto si può stampare. Premi “Rileva dischi” per preparare il gruppo successivo.</li>
+</ol>
+<p>Puoi caricare più dischi e lasciare che la coda lavori da sola dopo la conferma iniziale. Il programma salva un registro appena termina ciascun disco; il rapporto completo arriva alla fine del lotto. Un nuovo disco collegato durante il lavoro non viene cancellato automaticamente.</p>
+<p class="note">Prima di lasciare la postazione lavorare durante la notte, il responsabile tecnico deve averla collaudata. Lascia il PC acceso e i dischi alimentati; non sono previste ripartenze automatiche dopo un riavvio.</p>
+<h2>Rapporto da consegnare</h2>
+<p>Il rapporto riporta metodo, esiti, identificativo del lotto e riferimenti normativi e tecnici. Per una consegna formale, il responsabile completa i campi di affidante, incarico, operatore e validazione e conserva la copia finale firmata insieme al JSON originale. Il programma non firma digitalmente i rapporti e non approva automaticamente il riuso dei dischi. La stampa dal browser permette anche di salvare un PDF.</p>
+<h2>Come leggere il risultato</h2>
+<table>
+<tr><td class="ok"><strong>Cancellato e verificato</strong></td><td>Scrittura e rilettura complete dello spazio esposto al PC. La cancellazione non è una diagnosi dello stato di salute del disco.</td></tr>
+<tr><td class="ok"><strong>SSD sanitizzato · Esito confermato</strong></td><td>Il dispositivo ha confermato il termine della propria procedura di cancellazione. Il rapporto indica il metodo usato.</td></tr>
+<tr><td class="wait"><strong>Con avvisi</strong></td><td>Leggi gli avvisi nel rapporto e informa il responsabile tecnico.</td></tr>
+<tr><td class="bad"><strong>Non confermato / Interrotto</strong></td><td>Il processo non è stato completato. Tieni il disco da parte: può contenere ancora dati.</td></tr>
+<tr><td class="wait"><strong>Non cancellato</strong></td><td>La procedura non è iniziata. Se il messaggio chiede di chiudere Esplora file, chiudi le finestre e i programmi che usano quel disco, premi “Rileva dischi” e riprova. Uno SSD bloccato o non compatibile e le unità non identificate con certezza vanno affidati al responsabile tecnico.</td></tr>
+</table>
+<p><strong>Per fermare:</strong> premi “Interrompi” e aspetta l'esito. Gli HDD si interrompono; una cancellazione SSD già iniziata viene seguita fino al termine e gli altri lavori in coda non iniziano. Non spegnere o scollegare lo SSD durante la procedura.</p>
+<p>Se uno SSD dà errore, tienilo da parte e informa il responsabile tecnico, conservando il rapporto. Potrebbe servire il registro di recupero sul PC usato per la cancellazione.</p>
+<p>Alla fine l'HDD è vuoto e senza partizioni. Se Windows chiede di inizializzarlo, annulla e lascia che se ne occupi chi ricondiziona il computer.</p>
+<p class="brand">Procedura unica · Dischi USB e SATA · Esito separato per ciascun disco</p>
+</main>
+</html>

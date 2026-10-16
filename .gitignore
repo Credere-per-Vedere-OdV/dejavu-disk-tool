@@ -1,0 +1,17 @@
+# Dati delle postazioni e segreti: non pubblicare su GitHub.
+__pycache__/
+*.py[cod]
+.venv*/
+build/
+release/
+release-build/
+*.spec
+rapporti*/
+esiti_dischi/
+recupero_ssd/
+chiavi_rilascio/
+*.log
+*.private.pem
+aggiornamenti-ed25519.pem
+diagnostica*.json
+errore_avvio.txt

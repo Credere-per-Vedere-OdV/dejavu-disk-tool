@@ -1,0 +1,3 @@
+# Incluse nel pacchetto Windows: non si installano sui PC degli operatori.
+Pillow==12.3.0
+cryptography==50.0.2

@@ -1,0 +1,3 @@
+# Ambiente di compilazione Windows e dipendenze incluse nell'EXE.
+-r requirements.txt
+PyInstaller==6.22.3
