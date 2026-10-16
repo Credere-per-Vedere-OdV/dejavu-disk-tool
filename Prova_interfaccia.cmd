@@ -13,6 +13,6 @@ python "%~dp0avvia_sorgenti.py" --demo
 if errorlevel 1 pause
 exit /b
 :missing
-echo Installa Python 3.12, 3.13 o 3.14 a 64 bit con Tcl/Tk.
+echo Installa Python 3.12, 3.13, 3.14 o 3.15 a 64 bit con Tcl/Tk.
 echo La simulazione non accede ai dischi fisici.
 pause

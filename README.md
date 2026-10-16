@@ -2,7 +2,7 @@
 
 Programma Windows per il Progetto Dejavu di Credere per Vedere OdV: interfaccia italiana per la cancellazione di HDD e SSD SATA compatibili, tramite USB o SATA interno, con protezione delle unità in uso e rapporti per disco.
 
-**0.5.1-beta**: loghi originali con ridimensionamento di qualità e supporto alla densità del display; avviatore separato per aggiornamenti firmati da GitHub Releases. La 0.5.1 aggiunge riferimenti GDPR/Garante/NIST e campi di attestazione nei rapporti, con limiti di validazione espliciti. Una volta distribuita l'installazione Windows, agli operatori non serve Python.
+**0.5.2-beta**: il rapporto termina con due schede A4 per la compilazione manuale, con etichette da 18 punti, campi a tutta larghezza e righe distanziate di 12 mm. Identificativo del rapporto su entrambe le schede. Include la correzione del test ZIP per Windows. Restano i loghi originali, gli aggiornamenti firmati da GitHub Releases e i riferimenti GDPR/Garante/NIST con limiti di validazione espliciti. Una volta distribuita l'installazione Windows, agli operatori non serve Python.
 
 - [Istruzioni e limiti del programma](LEGGIMI_PRIMA.md)
 - [Prima configurazione GitHub e aggiornamenti delle postazioni](AGGIORNAMENTI_GITHUB.md)
@@ -12,7 +12,7 @@ Programma Windows per il Progetto Dejavu di Credere per Vedere OdV: interfaccia 
 
 ## Preparazione su Windows
 
-Con Python 3.12–3.14 a 64 bit aprire `Crea_EXE.cmd`, sul PC del responsabile. Il comando esegue i test, crea la chiave di rilascio se è la prima compilazione, costruisce l'applicazione e l'avviatore e prepara gli allegati firmati nella cartella `release`.
+Con Python 3.12–3.15 a 64 bit aprire `Crea_EXE.cmd`, sul PC del responsabile. Il comando esegue i test, crea la chiave di rilascio se è la prima compilazione, costruisce l'applicazione e l'avviatore e prepara gli allegati firmati nella cartella `release`. Per aggiornare i sorgenti già compilati alla 0.5.2 seguire `AGGIORNA_ALLA_0.5.2.txt`.
 
 Distribuire `DejavuDiskTool-Installazione-Windows-x64.zip` e avviare **AvviaDejavu.exe**. Prima dell'uso operativo seguire il collaudo Windows: questa distribuzione contiene sorgenti, non un EXE già costruito o validato su hardware.
 

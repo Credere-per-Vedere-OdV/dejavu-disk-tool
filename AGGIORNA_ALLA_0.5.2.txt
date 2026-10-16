@@ -1,0 +1,30 @@
+DEJAVU DISK TOOL 0.5.2-beta - AGGIORNAMENTO DEI RAPPORTI
+
+Le ultime due pagine del rapporto sono dedicate alla compilazione manuale:
+etichette da 18 punti, campi larghi e righe distanziate di 12 mm.
+
+SUL PC DOVE HAI APPENA CREATO L'EXE
+
+1. Chiudi il programma Dejavu e la finestra della vecchia compilazione.
+2. Estrai il nuovo ZIP in una cartella temporanea.
+3. Copia TUTTO IL CONTENUTO della cartella Dejavu_DiskTool appena estratta
+   dentro la cartella dei sorgenti che hai gia' usato per compilare,
+   quella che contiene Crea_EXE.cmd. Accetta di sostituire i file esistenti
+   e di unire le cartelle dejavu, assets, tests ed esempi_rapporti.
+   Non creare una seconda cartella Dejavu_DiskTool annidata dentro la prima.
+4. Nella cartella dei sorgenti gia' usata, avvia Crea_EXE.cmd.
+   L'ambiente Python 3.15 appena preparato viene riutilizzato.
+5. Al termine, apri release\DejavuDiskTool\Prova_interfaccia.cmd.
+   Crea un nuovo rapporto di simulazione e controlla le ultime due pagine.
+   Per la stampa: A4 verticale, scala 100%, margini del documento.
+
+La compilazione crea il nuovo EXE e i pacchetti firmati della 0.5.2-beta.
+I rapporti gia' emessi non vengono riscritti: la nuova impaginazione vale
+per i rapporti generati dalla versione aggiornata.
+
+Questa cartella contiene sorgenti: sostituirli non modifica da solo l'EXE
+che hai gia' compilato. Per aggiornarlo occorre il passaggio Crea_EXE.cmd.
+
+Conserva la chiave privata di rilascio e il suo backup riservato sul PC
+del responsabile. Il pacchetto sorgente non contiene chiavi e la copia
+dei nuovi file non richiede di cancellare quelle esistenti.

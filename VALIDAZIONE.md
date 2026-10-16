@@ -1,11 +1,11 @@
-# Validazione della beta 0.5.1
+# Validazione della beta 0.5.2
 
 16 ottobre 2026 — Linux, Python 3.12 a 64 bit. Nessun Windows nativo disponibile e nessun disco reale aperto.
 
 ## Eseguito
 
 - Compilazione sintattica dei sorgenti.
-- 119 test unittest superati: 88 test per il motore e i registri, 26 per gli aggiornamenti firmati e 5 per la tracciabilità e i limiti documentali dei rapporti.
+- 120 test unittest superati: 88 test per il motore e i registri, 27 per gli aggiornamenti firmati e 5 per la tracciabilità e i limiti documentali dei rapporti.
 - Simulazione completa: due HDD riusciti, uno SSD riuscito, un errore HDD di lettura; rapporti HTML e JSON salvati e marcati SIMULAZIONE.
 - Verifica reale della GUI in un display virtuale Linux: due loghi corretti, selezione e protezione del sistema, progressione SSD, pulsanti di avvio e conferma visibili con finestra 900×600. Il collaudo DPI e Windows resta necessario.
 - Loghi originali preservati byte per byte; caricamento PNG completo con Pillow e ridimensionamento Lanczos al posto del sottocampionamento Tk. Logo CpV a 120 pixel alla densità base, con raster adattato al display.
@@ -18,11 +18,11 @@ I test esistenti coprono capacità e ultimo blocco, settori 512/4096, scrittura/
 
 I nuovi test verificano capacità SSD e parole IDENTIFY non valide, sicurezza ATA, firme/registri a 48 bit, CDB SAT-16 e direzione dati, risposte incomplete/errori, metodi mancanti e NVMe escluso, protezioni, seriale cambiato, stato Sanitize prima di avviare, congelamento e lavoro già in corso, vecchio successo non riutilizzato dopo un comando rifiutato, annullamento dopo l'avvio seguito fino al completamento, sequenza password/prepare/enhanced erase, DPAPI fallita prima di impostare la password, registro cifrato conservato su errore, rapporti SSD con conteggi nulli e recupero senza erase né attestazione di cancellazione.
 
-Questi risultati dimostrano il comportamento nei casi simulati. Non verificano firmware, passaggio dei comandi attraverso docking/driver, DPAPI reale o cancellazione fisica della memoria NAND. L'EXE non è stato costruito o collaudato su Windows. Non è una certificazione NIST/Purge.
+Questi risultati dimostrano il comportamento nei casi simulati. Non verificano firmware, passaggio dei comandi attraverso docking/driver, DPAPI reale o cancellazione fisica della memoria NAND. L'EXE 0.5.2 non è stato costruito o collaudato su Windows nell'ambiente automatico di sviluppo. Non è una certificazione NIST/Purge.
 
 ## Aggiornamenti firmati: prove eseguite
 
-I 26 nuovi test usano chiavi Ed25519 generate in cartelle temporanee, firme reali e risposte HTTP simulate. Sono stati verificati:
+I 27 test usano chiavi Ed25519 generate in cartelle temporanee, firme reali e risposte HTTP simulate. Sono stati verificati:
 
 - Firma corretta; rifiuto di metadati alterati, firma o chiave errata, campi duplicati, prodotto/piattaforma/repository/versione diversi, limiti di dimensione e protocollo avviatore.
 - Ordinamento numerico delle versioni; esclusione di versioni vecchie, bozze, release non pubblicate, beta dal canale stabile, versioni già respinte e asset duplicati, mancanti o provenienti da percorsi estranei.
@@ -32,7 +32,7 @@ I 26 nuovi test usano chiavi Ed25519 generate in cartelle temporanee, firme real
 - Annullamento, assenza di rete e errore nel salvataggio del riferimento attivo: versione precedente ancora utilizzabile. Ripristino dopo un errore di avvio della versione nuova, che viene esclusa dai successivi controlli.
 - Produzione degli allegati partendo da una cartella Windows simulata, firma verificabile e nessuna chiave privata negli ZIP. Rifiuto della compilazione con una chiave privata diversa dalla pubblica già associata al progetto.
 
-Gli eseguibili delle prove di packaging sono file fittizi con intestazione MZ e **non vengono eseguiti**. Questi test non dimostrano che un EXE Windows sia stato compilato. Non è stato creato o pubblicato alcun repository o GitHub Release. L'attivazione per i colleghi richiede la procedura in `AGGIORNAMENTI_GITHUB.md`.
+Gli eseguibili delle prove di packaging sono file fittizi con intestazione MZ e **non vengono eseguiti**. Questi test non dimostrano che un EXE Windows sia stato compilato. Nelle prove automatiche non sono state create o pubblicate GitHub Release. L'attivazione per i colleghi richiede la procedura in `AGGIORNAMENTI_GITHUB.md`.
 
 La finestra reale dell’avviatore è stata provata su display virtuale Linux: aggiornamento firmato con pacchetto simulato e ripiego offline sulla versione installata, senza avviare processi o accedere a dischi.
 
@@ -43,6 +43,14 @@ La GUI reale è stata verificata anche con densità Tk equivalenti a 100%, 150% 
 Cinque nuovi test verificano che successi, errori, blocchi e interruzioni non generino una firma, una validazione umana o una certificazione GDPR/Purge; gli SSD conservano i conteggi nulli e l'esito nativo. Sono stati verificati il collegamento esatto tra identificativo del lotto, record progressivi e rapporto finale, l'impronta SHA-256 del JSON mostrata nell'HTML, il collegamento al JSON dell'esempio incluso, l'escape dei dati e il rifiuto di identificativi che potrebbero alterare i percorsi di salvataggio.
 
 I campi da completare sulla copia finale restano vuoti. Non vengono registrati nomi, firme o autorizzazioni non forniti. Queste verifiche riguardano il software e i documenti: non sono una valutazione legale dell'intero servizio, una firma qualificata, una prova di collaudo Windows o una certificazione dell'efficacia fisica sui dischi.
+
+## Rapporti 0.5.2: impaginazione accessibile
+
+Due schede di compilazione con etichette da 18 punti e righe da 12 mm; identificativo del rapporto su ciascuna scheda, campi separati e ampie firme. Anteprima A4 ottenuta dall'HTML con WeasyPrint 70.0 e controllata su pagine rasterizzate. Il PDF è un'anteprima di esempio, non una nuova funzione di esportazione automatica nell'EXE. La stampa reale da browser Windows resta da verificare.
+
+Il test ZIP ostile conserva ora i nomi originali anche quando Python su Windows normalizza i separatori durante la creazione dell'archivio. La nuova regressione prova le combinazioni di separatori di lettura e scrittura. Restano attivi tutti i controlli degli aggiornamenti; non cambia il motore di cancellazione.
+
+Riscontro del responsabile del 16 ottobre 2026: Andrea ha riferito compilazione riuscita della 0.5.1 su Windows con Python 3.15 e prova positiva della GUI, della simulazione e del rapporto. Si tratta di un riscontro d'uso, non di una prova di cancellazione su hardware reale e non della compilazione della 0.5.2.
 
 ## Collaudo Windows da eseguire
 

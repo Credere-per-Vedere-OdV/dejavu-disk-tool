@@ -1,6 +1,6 @@
 # Rapporti, riferimenti e attestazione dell'attività
 
-Versione 0.5.1-beta — verifica delle fonti: 16 ottobre 2026.
+Versione 0.5.2-beta — verifica delle fonti: 16 ottobre 2026.
 
 ## Che cosa rilascia il programma
 
@@ -25,6 +25,12 @@ La stampa prevede campi per affidante/provenienza, riferimento dell'incarico e a
 La verifica automatica conferma ciò che il programma ha registrato. La validazione organizzativa decide se quell'esito sia sufficiente per la destinazione prevista, tenendo conto di dati, metodo, modello/firmware, collegamento, errori e requisiti del donatore. Il JSON indica sempre `human_validation: NOT_RECORDED`: questa versione non acquisisce una validazione elettronica del responsabile. Non seleziona automaticamente “accettata” sulla stampa.
 
 Per gli HDD il motore registra la sovrascrittura e la rilettura dello spazio esposto al PC. Per gli SSD registra il metodo nativo e l'esito del dispositivo; non misura tutta la NAND. Nessuno dei due risultati genera automaticamente un'attestazione Purge. Restano necessari collaudo Windows e validazione del procedimento: vedere `VALIDAZIONE.md`.
+
+## Compilazione manuale e stampa leggibile
+
+La 0.5.2 aggiunge due schede A4 dedicate: compilazione dell'operatore e validazione del responsabile. Le etichette sono da 18 punti, con caratteri scuri su fondo bianco. I campi occupano la larghezza disponibile, le righe sono distanziate di 12 mm e le aree per provenienza, incarico, riserve e responsabile hanno più righe. Nome dell'operatore e postazione sono separati; le firme hanno una zona distinta dalla data. Entrambe le schede riportano l'identificativo del rapporto e l'eventuale dicitura di simulazione.
+
+Stampare in A4 verticale al 100%, con margini definiti dal documento, senza ridurre per far stare l'intero rapporto in una pagina. I contenuti tecnici possono occupare più pagine; le ultime due sono dedicate alla scrittura. Conservare tutte le pagine insieme. Il programma continua a produrre HTML e JSON; il PDF si ottiene dalla stampa del browser. I rapporti già emessi restano quelli originali: il nuovo impaginato vale per i nuovi rapporti.
 
 ## Valore del documento, firma e data
 
