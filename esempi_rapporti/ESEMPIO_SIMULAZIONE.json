@@ -1,0 +1,217 @@
+{
+  "application": "Dejavu DiskTool",
+  "version": "0.5.1-beta",
+  "created_at": "2026-10-16T11:30:39+02:00",
+  "simulated": true,
+  "concurrency": 2,
+  "batch_id": "20261016-113036-5b3e837e",
+  "documentation": {
+    "document_id": "20261016-113036-5b3e837e",
+    "document_type": "Rapporto tecnico delle operazioni di cancellazione",
+    "organization": "Credere per Vedere OdV — Progetto Dejavu",
+    "framework_review_date": "2026-10-16",
+    "references": [
+      {
+        "id": "GDPR",
+        "category": "Quadro normativo europeo",
+        "title": "Regolamento (UE) 2016/679 — artt. 5, par. 2, 24 e 32",
+        "url": "https://www.garanteprivacy.it/regolamentoue",
+        "purpose": "Responsabilizzazione, documentazione delle misure e sicurezza adeguata al rischio. Il GDPR non prescrive un unico algoritmo di cancellazione."
+      },
+      {
+        "id": "GPDP-2008-1571514",
+        "category": "Riferimento italiano di settore",
+        "title": "Garante per la protezione dei dati personali — provvedimento 13 ottobre 2008, doc. web 1571514",
+        "url": "https://www.garanteprivacy.it/web/guest/home/docweb/-/docweb-display/docweb/1571514",
+        "purpose": "Protezione dei dati nella dismissione e nel reimpiego e documentazione delle operazioni svolte. Riferimento antecedente al GDPR, da leggere nel quadro vigente e dell'evoluzione tecnologica: non si attesta l'applicazione letterale delle tecniche descritte nel 2008."
+      },
+      {
+        "id": "NIST-SP-800-88R2",
+        "category": "Riferimento tecnico, non normativa italiana o UE",
+        "title": "NIST SP 800-88 Rev. 2, settembre 2025 — sezioni 4.5, 4.6 e appendice C",
+        "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-88r2.pdf",
+        "purpose": "Distinzione tra verifica dell'operazione e validazione per la destinazione prevista; tracciabilità del supporto e documentazione degli esiti. Il richiamo non attesta una certificazione NIST o la conformità integrale della procedura."
+      }
+    ],
+    "notice": "Questo rapporto documenta gli esiti registrati dal programma sul supporto identificato. I riferimenti richiamati descrivono il contesto e i criteri documentali; non sono attestazioni automatiche di conformità GDPR, certificazioni del software o garanzie Purge. La valutazione di adeguatezza al rischio e l'accettazione per il riuso richiedono una validazione organizzativa separata. Errori, blocchi e interruzioni non attestano una cancellazione riuscita.",
+    "operator": null,
+    "assignor": null,
+    "assignment_reference": null,
+    "human_validation": {
+      "status": "NOT_RECORDED",
+      "reviewer": null,
+      "decision": null
+    },
+    "qualified_signature": "NOT_APPLIED",
+    "qualified_timestamp": "NOT_APPLIED",
+    "time_source": "Orologio locale del PC; data e ora non costituiscono una marca temporale qualificata",
+    "purge_certified": false,
+    "gdpr_certified": false
+  },
+  "policy": "Procedura automatica: HDD Clear con zeri e rilettura integrale; SSD SATA con ATA Sanitize Block Erase o ATA Enhanced Security Erase",
+  "coverage": "HDD: spazio indirizzabile esposto al computer. SSD: operazione interna al controller ed esito nativo; nessun conteggio di byte riletti. Non è una certificazione Purge né una diagnosi completa del disco.",
+  "protected_disks": [
+    {
+      "number": 0,
+      "model": "Windows — esempio protetto",
+      "reasons": [
+        "Windows in esecuzione"
+      ]
+    }
+  ],
+  "results": [
+    {
+      "disk": {
+        "number": 1,
+        "model": "HDD SATA — esempio",
+        "serial": "DEMO-HDD-001",
+        "unique_id": "DEMO-1",
+        "size": 16777216,
+        "sector_size": 512,
+        "bus": "SATA",
+        "kind": "HDD",
+        "media_evidence": "Simulazione",
+        "protected_reasons": [],
+        "volume_paths": [],
+        "read_only": false,
+        "offline": false,
+        "simulated": true,
+        "transport_serial": "",
+        "identity_source": "",
+        "firmware_model": "",
+        "probe_notes": [],
+        "firmware_revision": "",
+        "native_methods": [],
+        "security_state": [],
+        "enhanced_erase_minutes": 0
+      },
+      "status": "SUCCESS",
+      "message": "Cancellazione e verifica complete.",
+      "written": 16777216,
+      "verified": 16777216,
+      "started_at": "2026-10-16T09:30:36+00:00",
+      "finished_at": "2026-10-16T09:30:37+00:00",
+      "duration_seconds": 1.428,
+      "method": "HDD Clear: 1 sovrascrittura con zeri + rilettura integrale",
+      "coverage": "Spazio indirizzabile esposto al computer; nessuna attestazione Purge",
+      "warnings": [],
+      "native_details": {}
+    },
+    {
+      "disk": {
+        "number": 2,
+        "model": "HDD USB — esempio",
+        "serial": "DEMO-HDD-002",
+        "unique_id": "DEMO-2",
+        "size": 25165824,
+        "sector_size": 4096,
+        "bus": "USB",
+        "kind": "HDD",
+        "media_evidence": "Simulazione",
+        "protected_reasons": [],
+        "volume_paths": [],
+        "read_only": false,
+        "offline": false,
+        "simulated": true,
+        "transport_serial": "",
+        "identity_source": "",
+        "firmware_model": "",
+        "probe_notes": [],
+        "firmware_revision": "",
+        "native_methods": [],
+        "security_state": [],
+        "enhanced_erase_minutes": 0
+      },
+      "status": "SUCCESS",
+      "message": "Cancellazione e verifica complete.",
+      "written": 25165824,
+      "verified": 25165824,
+      "started_at": "2026-10-16T09:30:36+00:00",
+      "finished_at": "2026-10-16T09:30:38+00:00",
+      "duration_seconds": 2.132,
+      "method": "HDD Clear: 1 sovrascrittura con zeri + rilettura integrale",
+      "coverage": "Spazio indirizzabile esposto al computer; nessuna attestazione Purge",
+      "warnings": [],
+      "native_details": {}
+    },
+    {
+      "disk": {
+        "number": 3,
+        "model": "SSD — esempio",
+        "serial": "DEMO-SSD-003",
+        "unique_id": "DEMO-3",
+        "size": 8388608,
+        "sector_size": 512,
+        "bus": "USB",
+        "kind": "SSD",
+        "media_evidence": "Simulazione",
+        "protected_reasons": [],
+        "volume_paths": [],
+        "read_only": false,
+        "offline": false,
+        "simulated": true,
+        "transport_serial": "",
+        "identity_source": "ATA",
+        "firmware_model": "SSD — esempio",
+        "probe_notes": [],
+        "firmware_revision": "",
+        "native_methods": [
+          "ATA_SANITIZE_BLOCK"
+        ],
+        "security_state": [],
+        "enhanced_erase_minutes": 0
+      },
+      "status": "SUCCESS",
+      "message": "Sanitizzazione SSD completata; esito confermato dal dispositivo.",
+      "written": null,
+      "verified": null,
+      "started_at": "2026-10-16T09:30:37+00:00",
+      "finished_at": "2026-10-16T09:30:38+00:00",
+      "duration_seconds": 0.808,
+      "method": "SIMULAZIONE SSD: ATA Sanitize Block Erase",
+      "coverage": "Operazione interna al controller; nessuna certificazione Purge",
+      "warnings": [],
+      "native_details": {
+        "completion": "device_confirmed",
+        "simulated": true
+      }
+    },
+    {
+      "disk": {
+        "number": 4,
+        "model": "HDD con errore — esempio",
+        "serial": "DEMO-HDD-004",
+        "unique_id": "DEMO-4",
+        "size": 16777216,
+        "sector_size": 512,
+        "bus": "SATA",
+        "kind": "HDD",
+        "media_evidence": "Simulazione",
+        "protected_reasons": [],
+        "volume_paths": [],
+        "read_only": false,
+        "offline": false,
+        "simulated": true,
+        "transport_serial": "",
+        "identity_source": "",
+        "firmware_model": "",
+        "probe_notes": [],
+        "firmware_revision": "",
+        "native_methods": [],
+        "security_state": [],
+        "enhanced_erase_minutes": 0
+      },
+      "status": "FAILED",
+      "message": "Cancellazione non confermata: Errore di lettura simulato: collegamento interrotto.",
+      "written": 16777216,
+      "verified": 0,
+      "started_at": "2026-10-16T09:30:38+00:00",
+      "finished_at": "2026-10-16T09:30:39+00:00",
+      "duration_seconds": 1.055,
+      "method": "HDD Clear: 1 sovrascrittura con zeri + rilettura integrale",
+      "coverage": "Spazio indirizzabile esposto al computer; nessuna attestazione Purge",
+      "warnings": [],
+      "native_details": {}
+    }
+  ]
+}

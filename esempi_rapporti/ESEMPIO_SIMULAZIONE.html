@@ -1,0 +1,75 @@
+<!doctype html><html lang="it"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Rapporto Dejavu 20261016-113036-5b3e837e</title><style>
+    body{font:16px system-ui,sans-serif;color:#17253b;background:#f2f5f9;margin:0;padding:32px}
+    main{max-width:1120px;margin:auto;background:white;padding:32px;border-radius:16px}
+    h1{font-size:30px;margin:8px 0 12px} .muted{color:#4e5e73} table{border-collapse:collapse;width:100%;margin:24px 0}
+    th,td{text-align:left;vertical-align:top;padding:16px;border:1px solid #d7e0eb;line-height:1.6;overflow-wrap:anywhere}
+    th{background:#eaf0f8} .success{background:#e6f6ec;color:#175733} .failed,.cancelled{background:#fff0ed;color:#86291c}
+    .blocked,.success_warning{background:#fff6df;color:#684507} .demo{background:#e8e3ff;padding:16px;border-radius:8px}
+    .summary{font-size:18px;line-height:1.7} .framework,.completion{font-size:13px;line-height:1.5}
+    .framework li{margin:6px 0} .completion{border-top:1px solid #d7e0eb;margin-top:20px}
+    .integrity{font-size:12px;overflow-wrap:anywhere} .completion p{line-height:1.8}
+    @media print{body{padding:0;background:white;font-size:12px}main{padding:6px}h1{font-size:23px}
+    h2{font-size:15px}th,td{padding:8px;line-height:1.4}thead{display:table-header-group}
+    tr,.completion{break-inside:avoid}.framework,.completion{font-size:11px}}
+    </style><main><p class="muted">CREDERE PER VEDERE OdV · PROGETTO DEJAVU</p>
+    <h1>Rapporto tecnico di cancellazione</h1><p>Identificativo: <strong>20261016-113036-5b3e837e</strong><br>
+    2026-10-16T11:30:39+02:00 · Versione 0.5.1-beta<br>
+    <span class="muted">Data e ora dell'orologio locale del PC; nessuna marca temporale qualificata.</span></p>
+    <p class='demo'><strong>SIMULAZIONE:</strong> gli esiti riguardano soltanto file di prova.</p><p class="summary"><strong>3</strong> completati · <strong>1</strong> non confermati ·
+    <strong>0</strong> non cancellati · <strong>0</strong> interrotti</p>
+    <table><thead><tr><th>Disco</th><th>Esito</th><th>Controlli eseguiti</th></tr></thead><tbody><tr><td><strong>Disco 1 · HDD SATA — esempio</strong><br>
+            Seriale: DEMO-HDD-001<br>16,8 MB · SATA<br>
+            Firmware: Non disponibile</td>
+            <td class="success"><strong>CANCELLATO E VERIFICATO</strong><br>Cancellazione e verifica complete.
+            </td>
+            <td>HDD Clear: 1 sovrascrittura con zeri + rilettura integrale<br>Scritti: 16,777,216 / 16,777,216 byte<br>Verificati: 16,777,216 / 16,777,216 byte<br>
+            Inizio attività: 2026-10-16T09:30:36+00:00<br>
+            Fine attività: 2026-10-16T09:30:37+00:00<br>
+            Durata: 1 s</td></tr><tr><td><strong>Disco 2 · HDD USB — esempio</strong><br>
+            Seriale: DEMO-HDD-002<br>25,2 MB · USB<br>
+            Firmware: Non disponibile</td>
+            <td class="success"><strong>CANCELLATO E VERIFICATO</strong><br>Cancellazione e verifica complete.
+            </td>
+            <td>HDD Clear: 1 sovrascrittura con zeri + rilettura integrale<br>Scritti: 25,165,824 / 25,165,824 byte<br>Verificati: 25,165,824 / 25,165,824 byte<br>
+            Inizio attività: 2026-10-16T09:30:36+00:00<br>
+            Fine attività: 2026-10-16T09:30:38+00:00<br>
+            Durata: 2 s</td></tr><tr><td><strong>Disco 3 · SSD — esempio</strong><br>
+            Seriale: DEMO-SSD-003<br>8,4 MB · USB<br>
+            Firmware: Non disponibile</td>
+            <td class="success"><strong>SSD SANITIZZATO — ESITO DEL DISPOSITIVO CONFERMATO</strong><br>Sanitizzazione SSD completata; esito confermato dal dispositivo.
+            </td>
+            <td>SIMULAZIONE SSD: ATA Sanitize Block Erase<br>Verifica nativa: Confermata dal dispositivo<br>Conteggi di scrittura/rilettura dal PC: non applicabili<br>
+            Inizio attività: 2026-10-16T09:30:37+00:00<br>
+            Fine attività: 2026-10-16T09:30:38+00:00<br>
+            Durata: 0 s</td></tr><tr><td><strong>Disco 4 · HDD con errore — esempio</strong><br>
+            Seriale: DEMO-HDD-004<br>16,8 MB · SATA<br>
+            Firmware: Non disponibile</td>
+            <td class="failed"><strong>NON CONFERMATO</strong><br>Cancellazione non confermata: Errore di lettura simulato: collegamento interrotto.
+            </td>
+            <td>HDD Clear: 1 sovrascrittura con zeri + rilettura integrale<br>Scritti: 16,777,216 / 16,777,216 byte<br>Verificati: 0 / 16,777,216 byte<br>
+            Inizio attività: 2026-10-16T09:30:38+00:00<br>
+            Fine attività: 2026-10-16T09:30:39+00:00<br>
+            Durata: 1 s</td></tr></tbody></table>
+    <h2>Procedura e copertura</h2><p>Procedura automatica: HDD Clear con zeri e rilettura integrale; SSD SATA con ATA Sanitize Block Erase o ATA Enhanced Security Erase</p><p>HDD: spazio indirizzabile esposto al computer. SSD: operazione interna al controller ed esito nativo; nessun conteggio di byte riletti. Non è una certificazione Purge né una diagnosi completa del disco.</p>
+    <h2>Unità protette</h2><ul><li>Windows — esempio protetto — Windows in esecuzione</li></ul>
+    <section class="framework"><h2>Riferimenti di contesto e limiti dell'attestazione</h2>
+    <ul><li><strong>Quadro normativo europeo</strong> — <a href="https://www.garanteprivacy.it/regolamentoue">Regolamento (UE) 2016/679 — artt. 5, par. 2, 24 e 32</a>. Responsabilizzazione, documentazione delle misure e sicurezza adeguata al rischio. Il GDPR non prescrive un unico algoritmo di cancellazione.</li><li><strong>Riferimento italiano di settore</strong> — <a href="https://www.garanteprivacy.it/web/guest/home/docweb/-/docweb-display/docweb/1571514">Garante per la protezione dei dati personali — provvedimento 13 ottobre 2008, doc. web 1571514</a>. Protezione dei dati nella dismissione e nel reimpiego e documentazione delle operazioni svolte. Riferimento antecedente al GDPR, da leggere nel quadro vigente e dell&#x27;evoluzione tecnologica: non si attesta l&#x27;applicazione letterale delle tecniche descritte nel 2008.</li><li><strong>Riferimento tecnico, non normativa italiana o UE</strong> — <a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-88r2.pdf">NIST SP 800-88 Rev. 2, settembre 2025 — sezioni 4.5, 4.6 e appendice C</a>. Distinzione tra verifica dell&#x27;operazione e validazione per la destinazione prevista; tracciabilità del supporto e documentazione degli esiti. Il richiamo non attesta una certificazione NIST o la conformità integrale della procedura.</li></ul><p>Questo rapporto documenta gli esiti registrati dal programma sul supporto identificato. I riferimenti richiamati descrivono il contesto e i criteri documentali; non sono attestazioni automatiche di conformità GDPR, certificazioni del software o garanzie Purge. La valutazione di adeguatezza al rischio e l&#x27;accettazione per il riuso richiedono una validazione organizzativa separata. Errori, blocchi e interruzioni non attestano una cancellazione riuscita.</p></section>
+    <section class="completion"><h2>Completamento e validazione del responsabile</h2>
+    <p>Da completare sulla copia cartacea o PDF finale, dopo la verifica dell'incarico e degli esiti.
+    Questi campi non sono compilati o sottoscritti automaticamente dal programma.</p>
+    <p>Affidante / provenienza del lotto: ____________________________________________________<br>
+    Riferimento incarico e autorizzazione alla cancellazione: __________________________________<br>
+    Operatore (nome e cognome) / postazione: ______________________________________________<br>
+    Firma dell'operatore / data: _________________________________________________________</p>
+    <p>Validazione per la destinazione prevista: &#9633; accettata &#9633; respinta &#9633; da approfondire<br>
+    Destinazione, riserve o interventi richiesti: ______________________________________________<br>
+    Responsabile della validazione (nome, ruolo) / firma / data: _________________________________</p>
+    <p class="muted">Validazione umana nel registro elettronico: non acquisita. Nessuna firma elettronica
+    qualificata o marca temporale qualificata è apposta dal programma. Un eventuale documento finale
+    firmato va conservato insieme al JSON originale e collegato all'identificativo di questo rapporto.</p></section>
+    <p class="integrity">Registro elettronico originale: <a href="ESEMPIO_SIMULAZIONE.json">ESEMPIO_SIMULAZIONE.json</a><br>
+    SHA-256 del JSON: b17b0947dff54ea08a91a15dd86048a69dec8e68f3a4a3aa192c583e789a9181<br>Questa impronta consente il confronto del file; da sola non prova
+    l'identità dell'autore, la data o l'immutabilità del documento. Non è una firma digitale qualificata.</p>
+    <p class="muted">Le unità con esito non confermato, non cancellato o interrotto richiedono un nuovo intervento prima della donazione.
+    Un esito di cancellazione riuscita non attesta l'affidabilità futura dell'hardware.</p></main></html>
