@@ -13,7 +13,7 @@ import uuid
 
 from . import __version__
 from .core import Inventory, JobResult, human_size, human_duration
-from .report_framework import documentation, documentation_html
+from .report_framework import completion_html, documentation, documentation_html
 
 
 LABELS = {"SUCCESS": "CANCELLATO E VERIFICATO", "FAILED": "NON CONFERMATO",
@@ -104,6 +104,7 @@ def save_reports(folder: Path, inventory: Inventory, results: list[JobResult],
     protected = "".join(f"<li>{escape(disk.model)} — {escape('; '.join(disk.protected_reasons))}</li>"
                         for disk in inventory.disks if disk.protected)
     framework = documentation_html(payload["documentation"])
+    completion = completion_html(payload["documentation"], simulated=inventory.simulated)
     html = f'''<!doctype html><html lang="it"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Rapporto Dejavu {escape(identifier)}</title><style>
     body{{font:16px system-ui,sans-serif;color:#17253b;background:#f2f5f9;margin:0;padding:32px}}
@@ -112,12 +113,34 @@ def save_reports(folder: Path, inventory: Inventory, results: list[JobResult],
     th,td{{text-align:left;vertical-align:top;padding:16px;border:1px solid #d7e0eb;line-height:1.6;overflow-wrap:anywhere}}
     th{{background:#eaf0f8}} .success{{background:#e6f6ec;color:#175733}} .failed,.cancelled{{background:#fff0ed;color:#86291c}}
     .blocked,.success_warning{{background:#fff6df;color:#684507}} .demo{{background:#e8e3ff;padding:16px;border-radius:8px}}
-    .summary{{font-size:18px;line-height:1.7}} .framework,.completion{{font-size:13px;line-height:1.5}}
-    .framework li{{margin:6px 0}} .completion{{border-top:1px solid #d7e0eb;margin-top:20px}}
-    .integrity{{font-size:12px;overflow-wrap:anywhere}} .completion p{{line-height:1.8}}
-    @media print{{body{{padding:0;background:white;font-size:12px}}main{{padding:6px}}h1{{font-size:23px}}
+    .summary{{font-size:18px;line-height:1.7}} .framework{{font-size:13px;line-height:1.5}}
+    .framework li{{margin:6px 0}} .integrity{{font-size:12px;overflow-wrap:anywhere}}
+    .completion{{font:18pt/1.4 Arial,Verdana,sans-serif;color:#111;background:white;
+    border:2px solid #31485c;margin-top:36px;padding:24px;box-sizing:border-box}}
+    .completion h2{{font-size:22pt;line-height:1.2;margin:0 0 3mm}}
+    .completion .form-organization{{font-size:12pt;font-weight:bold;margin:0 0 3mm}}
+    .completion .form-id{{font-size:14pt;line-height:1.35;margin:0 0 4mm;overflow-wrap:anywhere}}
+    .completion .form-note{{font-size:14pt;line-height:1.4;margin:0 0 5mm}}
+    .completion .form-simulation{{font-size:14pt;font-weight:bold;margin:0 0 4mm}}
+    .write-field{{margin:0 0 5mm;break-inside:avoid;page-break-inside:avoid}}
+    .completion .write-label{{font-size:18pt;font-weight:bold;line-height:1.3;margin:0 0 2mm}}
+    .handwriting-line{{display:block;box-sizing:border-box;height:12mm;border-bottom:0.35mm solid #222}}
+    .signature-fields{{display:flex;gap:8mm;break-inside:avoid;page-break-inside:avoid}}
+    .signature-fields .write-field:first-child{{flex:3;min-width:0}}
+    .signature-fields .write-field:last-child{{flex:1;min-width:0}}
+    .decision-choice{{display:inline-block;white-space:nowrap;margin:2mm 8mm 1mm 0}}
+    .decision-box{{display:inline-block;width:6mm;height:6mm;border:0.4mm solid #111;
+    box-sizing:border-box;margin-right:3mm;vertical-align:-0.7mm}}
+    .completion .form-footer{{margin-top:5mm;margin-bottom:0}}
+    @media screen and (max-width:650px){{body{{padding:12px}}main{{padding:16px}}
+    .completion{{padding:16px}}.signature-fields{{display:block}}}}
+    @page{{size:A4;margin:15mm}}
+    @media print{{body{{padding:0;background:white;font-size:12px}}main{{padding:0;max-width:none;border-radius:0}}h1{{font-size:23px}}
     h2{{font-size:15px}}th,td{{padding:8px;line-height:1.4}}thead{{display:table-header-group}}
-    tr,.completion{{break-inside:avoid}}.framework,.completion{{font-size:11px}}}}
+    tr{{break-inside:avoid}}.framework{{font-size:11px}}
+    .completion{{break-before:page;page-break-before:always;break-inside:auto;
+    border:0;margin:0;padding:0;font-size:18pt}}
+    .completion h2{{font-size:22pt}}h2{{break-after:avoid}}}}
     </style><main><p class="muted">CREDERE PER VEDERE OdV · PROGETTO DEJAVU</p>
     <h1>Rapporto tecnico di cancellazione</h1><p>Identificativo: <strong>{escape(identifier)}</strong><br>
     {escape(payload['created_at'])} · Versione {escape(__version__)}<br>
@@ -132,6 +155,7 @@ def save_reports(folder: Path, inventory: Inventory, results: list[JobResult],
     SHA-256 del JSON: {escape(json_digest)}<br>Questa impronta consente il confronto del file; da sola non prova
     l'identità dell'autore, la data o l'immutabilità del documento. Non è una firma digitale qualificata.</p>
     <p class="muted">Le unità con esito non confermato, non cancellato o interrotto richiedono un nuovo intervento prima della donazione.
-    Un esito di cancellazione riuscita non attesta l'affidabilità futura dell'hardware.</p></main></html>'''
+    Un esito di cancellazione riuscita non attesta l'affidabilità futura dell'hardware.</p>
+    {completion}</main></html>'''
     atomic_text(html_path, html)
     return html_path, json_path

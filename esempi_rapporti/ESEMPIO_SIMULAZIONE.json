@@ -1,12 +1,12 @@
 {
   "application": "Dejavu DiskTool",
-  "version": "0.5.1-beta",
-  "created_at": "2026-10-16T11:30:39+02:00",
+  "version": "0.5.2-beta",
+  "created_at": "2026-10-16T12:52:37+02:00",
   "simulated": true,
   "concurrency": 2,
-  "batch_id": "20261016-113036-5b3e837e",
+  "batch_id": "ESEMPIO-ACCESSIBILE-20261016",
   "documentation": {
-    "document_id": "20261016-113036-5b3e837e",
+    "document_id": "ESEMPIO-ACCESSIBILE-20261016",
     "document_type": "Rapporto tecnico delle operazioni di cancellazione",
     "organization": "Credere per Vedere OdV — Progetto Dejavu",
     "framework_review_date": "2026-10-16",
@@ -50,15 +50,7 @@
   },
   "policy": "Procedura automatica: HDD Clear con zeri e rilettura integrale; SSD SATA con ATA Sanitize Block Erase o ATA Enhanced Security Erase",
   "coverage": "HDD: spazio indirizzabile esposto al computer. SSD: operazione interna al controller ed esito nativo; nessun conteggio di byte riletti. Non è una certificazione Purge né una diagnosi completa del disco.",
-  "protected_disks": [
-    {
-      "number": 0,
-      "model": "Windows — esempio protetto",
-      "reasons": [
-        "Windows in esecuzione"
-      ]
-    }
-  ],
+  "protected_disks": [],
   "results": [
     {
       "disk": {

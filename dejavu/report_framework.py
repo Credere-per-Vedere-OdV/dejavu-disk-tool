@@ -55,17 +55,45 @@ def documentation_html(data):
         f'<a href="{escape(item["url"], quote=True)}">{escape(item["title"])}</a>. '
         f'{escape(item["purpose"])}</li>' for item in data["references"])
     return f'''<section class="framework"><h2>Riferimenti di contesto e limiti dell'attestazione</h2>
-    <ul>{items}</ul><p>{escape(data['notice'])}</p></section>
-    <section class="completion"><h2>Completamento e validazione del responsabile</h2>
-    <p>Da completare sulla copia cartacea o PDF finale, dopo la verifica dell'incarico e degli esiti.
-    Questi campi non sono compilati o sottoscritti automaticamente dal programma.</p>
-    <p>Affidante / provenienza del lotto: ____________________________________________________<br>
-    Riferimento incarico e autorizzazione alla cancellazione: __________________________________<br>
-    Operatore (nome e cognome) / postazione: ______________________________________________<br>
-    Firma dell'operatore / data: _________________________________________________________</p>
-    <p>Validazione per la destinazione prevista: &#9633; accettata &#9633; respinta &#9633; da approfondire<br>
-    Destinazione, riserve o interventi richiesti: ______________________________________________<br>
-    Responsabile della validazione (nome, ruolo) / firma / data: _________________________________</p>
-    <p class="muted">Validazione umana nel registro elettronico: non acquisita. Nessuna firma elettronica
-    qualificata o marca temporale qualificata è apposta dal programma. Un eventuale documento finale
-    firmato va conservato insieme al JSON originale e collegato all'identificativo di questo rapporto.</p></section>'''
+    <ul>{items}</ul><p>{escape(data['notice'])}</p></section>'''
+
+
+def completion_html(data, *, simulated=False):
+    """Large-print, handwriting-friendly sheets linked to the same report."""
+    identifier = escape(data["document_id"])
+    simulation = '<p class="form-simulation">SIMULAZIONE - solo file di prova</p>' if simulated else ""
+
+    def header(title, sheet):
+        return f'''<p class="form-organization">CREDERE PER VEDERE OdV - PROGETTO DEJAVU</p>
+        <h2>{title}</h2><p class="form-id">Rapporto: <strong>{identifier}</strong><br>
+        Scheda di compilazione {sheet} di 2</p>{simulation}'''
+
+    def field(label, lines=1):
+        writing = '<span class="handwriting-line"></span>' * lines
+        return f'''<div class="write-field"><p class="write-label">{escape(label)}</p>
+        <div class="handwriting-area" aria-hidden="true">{writing}</div></div>'''
+
+    return f'''<section class="completion" aria-label="Scheda di compilazione dell'operatore">
+    {header("Compilazione dell'operatore", 1)}
+    <p class="form-note">Compilare a mano dopo aver verificato l'incarico e gli esiti del rapporto.</p>
+    {field("Affidante / provenienza del lotto", 2)}
+    {field("Incarico e autorizzazione alla cancellazione", 2)}
+    {field("Operatore (nome e cognome)")}
+    {field("Postazione utilizzata")}
+    <div class="signature-fields">{field("Firma dell'operatore")}{field("Data")}</div>
+    <p class="form-note form-footer">Campi da compilare sulla copia cartacea o PDF finale.
+    Il programma non compila i nomi e non appone firme.</p></section>
+    <section class="completion" aria-label="Scheda di validazione del responsabile">
+    {header("Validazione del responsabile", 2)}
+    <p class="form-note">Da completare dopo la verifica degli esiti e della destinazione prevista.</p>
+    <div class="write-field"><p class="write-label">Validazione per la destinazione prevista</p>
+    <div class="decision-options"><span class="decision-choice"><span class="decision-box" aria-hidden="true"></span>Accettata</span>
+    <span class="decision-choice"><span class="decision-box" aria-hidden="true"></span>Respinta</span>
+    <span class="decision-choice"><span class="decision-box" aria-hidden="true"></span>Da approfondire</span></div></div>
+    {field("Destinazione, riserve e interventi richiesti", 3)}
+    {field("Responsabile (nome, cognome e ruolo)", 2)}
+    <div class="signature-fields">{field("Firma del responsabile")}{field("Data")}</div>
+    <p class="form-note form-footer">Validazione umana nel registro elettronico: non acquisita.
+    Nessuna firma elettronica qualificata o marca temporale qualificata è apposta dal programma.
+    Conservare la copia finale firmata insieme al rapporto completo e al JSON originale,
+    collegati all'identificativo riportato sopra.</p></section>'''

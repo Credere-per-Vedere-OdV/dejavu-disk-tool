@@ -42,7 +42,11 @@ def payload_bytes(version=NEW, extra=()):
         archive.writestr("_internal/assets/logo_cpv.png", b"simulated image")
         archive.writestr("versione.json", json.dumps({"version": version, "product": PRODUCT, "platform": PLATFORM}))
         for name, data in extra:
-            archive.writestr(name, data)
+            # ZipInfo normalizes backslashes on Windows. Preserve hostile names
+            # verbatim so the fixture really tests the archive's original path.
+            item = zipfile.ZipInfo(name)
+            item.filename = item.orig_filename = name
+            archive.writestr(item, data, compress_type=archive.compression)
     return stream.getvalue()
 
 
@@ -170,6 +174,19 @@ class AuthenticityTests(unittest.TestCase):
 
 
 class ArchiveTests(unittest.TestCase):
+    def test_backslash_paths_are_rejected_with_either_zip_separator(self):
+        name = "folder\\file"
+        for writer_separator in ("/", "\\"):
+            with patch.object(zipfile.os, "sep", writer_separator):
+                raw = payload_bytes(extra=[(name, b"x")])
+            for reader_separator in ("/", "\\"):
+                with self.subTest(writer=writer_separator, reader=reader_separator):
+                    with patch.object(zipfile.os, "sep", reader_separator):
+                        with zipfile.ZipFile(BytesIO(raw)) as archive:
+                            self.assertEqual(archive.infolist()[-1].orig_filename, name)
+                            with self.assertRaises(UpdateError):
+                                safe_members(archive)
+
     def test_traversal_windows_aliases_and_case_collisions_never_extract(self):
         names = ("../outside", "/absolute", "C:/file", "folder\\file", "file:stream", "folder//file",
                  "folder/./file", "folder/trailing.", "NUL.txt", "COM1", "folder/trailing ", "bad?.exe")
