@@ -1,12 +1,17 @@
-Dejavu DiskTool 0.5.2-beta - test su file temporanei e API simulate; nessun disco fisico aperto.
+Dejavu DiskTool 0.5.3-beta - test su file temporanei e API simulate; nessun disco fisico aperto.
 
-Avvio per i colleghi: /tmp/tmpx2fkd729/output/DejavuDiskTool/AvviaDejavu.exe
-Prima installazione: /tmp/tmpx2fkd729/output/DejavuDiskTool-Installazione-Windows-x64.zip
+Avvio per i colleghi: /tmp/tmpmd9mpup3/output/DejavuDiskTool/AvviaDejavu.exe
+Prima installazione: /tmp/tmpmd9mpup3/output/DejavuDiskTool-Installazione-Windows-x64.zip
 Release GitHub: DejavuDiskTool-Windows-x64.zip, aggiornamento.json, aggiornamento.sig e DejavuDiskTool-Installazione-Windows-x64.zip
 Eseguire il collaudo Windows prima di pubblicare la release.
 test_blocked_ssd_record_preserves_failed_eligibility_and_null_counts (test_batch_records.BatchRecordTests.test_blocked_ssd_record_preserves_failed_eligibility_and_null_counts) ... ok
 test_record_failure_does_not_change_erasure_or_lose_final_report (test_batch_records.BatchRecordTests.test_record_failure_does_not_change_erasure_or_lose_final_report) ... ok
 test_record_is_on_disk_while_another_drive_is_still_verifying (test_batch_records.BatchRecordTests.test_record_is_on_disk_while_another_drive_is_still_verifying) ... ok
+test_gil_compatibility_shim_is_chosen_instead_of_freethreaded_shim (test_build_runtime.WindowsRuntimeTests.test_gil_compatibility_shim_is_chosen_instead_of_freethreaded_shim) ... ok
+test_missing_python3t_is_detected_before_packaging (test_build_runtime.WindowsRuntimeTests.test_missing_python3t_is_detected_before_packaging) ... ok
+test_non_x64_runtime_is_rejected (test_build_runtime.WindowsRuntimeTests.test_non_x64_runtime_is_rejected) ... ok
+test_normal_layout_collects_both_matching_stable_abi_dlls (test_build_runtime.WindowsRuntimeTests.test_normal_layout_collects_both_matching_stable_abi_dlls) ... ok
+test_truncated_pe_is_rejected (test_build_runtime.WindowsRuntimeTests.test_truncated_pe_is_rejected) ... ok
 test_complete_batch_and_progressive_record_have_the_same_traceable_identifier (test_report_framework.ReportFrameworkTests.test_complete_batch_and_progressive_record_have_the_same_traceable_identifier) ... ok
 test_native_ssd_success_keeps_native_evidence_without_purge_certification (test_report_framework.ReportFrameworkTests.test_native_ssd_success_keeps_native_evidence_without_purge_certification) ... ok
 test_printable_report_links_exact_original_json_with_hash_and_limitations (test_report_framework.ReportFrameworkTests.test_printable_report_links_exact_original_json_with_hash_and_limitations) ... ok
@@ -126,6 +131,6 @@ test_two_slots_returning_same_firmware_serial_stay_blocked (test_usb_identity.Us
 test_wrong_firmware_model_is_not_assigned_to_other_usb_slot (test_usb_identity.UsbIdentityTests.test_wrong_firmware_model_is_not_assigned_to_other_usb_slot) ... ok
 
 ----------------------------------------------------------------------
-Ran 120 tests in 0.330s
+Ran 125 tests in 0.409s
 
 OK

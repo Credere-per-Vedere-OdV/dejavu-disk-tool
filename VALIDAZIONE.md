@@ -1,11 +1,11 @@
-# Validazione della beta 0.5.2
+# Validazione della beta 0.5.3
 
-16 ottobre 2026 — Linux, Python 3.12 a 64 bit. Nessun Windows nativo disponibile e nessun disco reale aperto.
+17 ottobre 2026 — Linux, Python 3.12 a 64 bit. Nessun Windows nativo disponibile e nessun disco reale aperto.
 
 ## Eseguito
 
 - Compilazione sintattica dei sorgenti.
-- 120 test unittest superati: 88 test per il motore e i registri, 27 per gli aggiornamenti firmati e 5 per la tracciabilità e i limiti documentali dei rapporti.
+- 125 test unittest superati: 88 test per il motore e i registri, 27 per gli aggiornamenti firmati, 5 per la tracciabilità e i limiti documentali dei rapporti e 5 per le dipendenze Windows del pacchetto.
 - Simulazione completa: due HDD riusciti, uno SSD riuscito, un errore HDD di lettura; rapporti HTML e JSON salvati e marcati SIMULAZIONE.
 - Verifica reale della GUI in un display virtuale Linux: due loghi corretti, selezione e protezione del sistema, progressione SSD, pulsanti di avvio e conferma visibili con finestra 900×600. Il collaudo DPI e Windows resta necessario.
 - Loghi originali preservati byte per byte; caricamento PNG completo con Pillow e ridimensionamento Lanczos al posto del sottocampionamento Tk. Logo CpV a 120 pixel alla densità base, con raster adattato al display.
@@ -18,7 +18,7 @@ I test esistenti coprono capacità e ultimo blocco, settori 512/4096, scrittura/
 
 I nuovi test verificano capacità SSD e parole IDENTIFY non valide, sicurezza ATA, firme/registri a 48 bit, CDB SAT-16 e direzione dati, risposte incomplete/errori, metodi mancanti e NVMe escluso, protezioni, seriale cambiato, stato Sanitize prima di avviare, congelamento e lavoro già in corso, vecchio successo non riutilizzato dopo un comando rifiutato, annullamento dopo l'avvio seguito fino al completamento, sequenza password/prepare/enhanced erase, DPAPI fallita prima di impostare la password, registro cifrato conservato su errore, rapporti SSD con conteggi nulli e recupero senza erase né attestazione di cancellazione.
 
-Questi risultati dimostrano il comportamento nei casi simulati. Non verificano firmware, passaggio dei comandi attraverso docking/driver, DPAPI reale o cancellazione fisica della memoria NAND. L'EXE 0.5.2 non è stato costruito o collaudato su Windows nell'ambiente automatico di sviluppo. Non è una certificazione NIST/Purge.
+Questi risultati dimostrano il comportamento nei casi simulati. Non verificano firmware, passaggio dei comandi attraverso docking/driver, DPAPI reale o cancellazione fisica della memoria NAND. L'EXE 0.5.3 non è stato costruito o collaudato su Windows nell'ambiente automatico di sviluppo. Non è una certificazione NIST/Purge.
 
 ## Aggiornamenti firmati: prove eseguite
 
@@ -51,6 +51,12 @@ Due schede di compilazione con etichette da 18 punti e righe da 12 mm; identific
 Il test ZIP ostile conserva ora i nomi originali anche quando Python su Windows normalizza i separatori durante la creazione dell'archivio. La nuova regressione prova le combinazioni di separatori di lettura e scrittura. Restano attivi tutti i controlli degli aggiornamenti; non cambia il motore di cancellazione.
 
 Riscontro del responsabile del 16 ottobre 2026: Andrea ha riferito compilazione riuscita della 0.5.1 su Windows con Python 3.15 e prova positiva della GUI, della simulazione e del rapporto. Si tratta di un riscontro d'uso, non di una prova di cancellazione su hardware reale e non della compilazione della 0.5.2.
+
+## Avvio su un PC senza Python: correzione 0.5.3
+
+17 ottobre 2026: il responsabile ha segnalato il mancato avvio della 0.5.2 su un altro Windows 11, con errore di caricamento di cryptography `_rust`. L'analisi statica delle importazioni PE dell'installer pubblicato ha individuato la dipendenza `python3t.dll`, assente nell'avviatore. Il runtime `python315.dll` distribuito coincide byte per byte con quello nell'archivio embeddable ufficiale Python 3.15.0 x64. Sono stati verificati SHA-256 dell'archivio rispetto alla pagina python.org, provenienza e compatibilità della DLL recuperata, e chiusura delle dipendenze Python di avviatore e app dopo l'aggiunta. Non è stato eseguito codice Windows durante questa verifica.
+
+La compilazione ora raccoglie le DLL Stable ABI dall'interprete effettivo dell'ambiente di compilazione, distinguendo lo shim compatibile dal runtime free-threaded eventualmente installato insieme. Rifiuta un pacchetto che contenga estensioni con DLL Python mancanti. Cinque test riproducono l'omissione, verificano entrambe le disposizioni delle DLL, il rifiuto dell'architettura non x64 e dei PE troncati. Il successivo avvio reale sul portatile deve ancora essere confermato.
 
 ## Collaudo Windows da eseguire
 

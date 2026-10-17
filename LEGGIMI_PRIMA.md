@@ -1,6 +1,6 @@
 # Dejavu DiskTool — beta Windows
 
-Versione 0.5.2-beta · 16 ottobre 2026
+Versione 0.5.3-beta · 17 ottobre 2026
 
 Per Credere per Vedere OdV e il Progetto Dejavu — Laboratorio di Riciclo e Terapia Occupazionale. Una sola procedura: collegare i dischi, selezionare quelli da cancellare, confermare e leggere l'esito di ciascuno. Non occorre indicare quante docking sono collegate. Il progetto deriva dall'analisi del DFTool di Alessio, con un motore Windows separato.
 
@@ -8,7 +8,9 @@ La 0.5.0 migliora la resa dei loghi originali con ridimensionamento Lanczos e im
 
 La **0.5.1** integra nei rapporti HTML e nei JSON i riferimenti di contesto GDPR/Garante e quelli documentali NIST SP 800-88 Rev. 2. Aggiunge identificativi collegati tra lotto e registri per unità, impronta SHA-256 del JSON sulla stampa e campi manuali per affidante, incarico, operatore, firma e validazione del responsabile. Il software non appone firme qualificate e non certifica automaticamente conformità normativa o livello Purge. Vedere `RAPPORTI_E_RIFERIMENTI.md`.
 
-La **0.5.2** rende più leggibile la parte da compilare a mano: due schede A4 dedicate, etichette da 18 punti, spazi a tutta larghezza e righe da 12 mm. Ogni scheda riporta l'identificativo del rapporto e le simulazioni sono indicate anche sulle schede. La compilazione resta manuale e separata dai dati JSON. È inclusa la correzione del test ZIP per Windows. Per ricreare l'EXE seguire `AGGIORNA_ALLA_0.5.2.txt`.
+La **0.5.2** rende più leggibile la parte da compilare a mano: due schede A4 dedicate, etichette da 18 punti, spazi a tutta larghezza e righe da 12 mm. Ogni scheda riporta l'identificativo del rapporto e le simulazioni sono indicate anche sulle schede. La compilazione resta manuale e separata dai dati JSON. È inclusa la correzione del test ZIP per Windows. Per ricreare l'EXE seguire `AGGIORNA_ALLA_0.5.3.txt`.
+
+La **0.5.3** corregge il confezionamento dell'avviatore: include esplicitamente le DLL Stable ABI corrette dell'interprete usato per compilare, compresa `python3t.dll` richiesta da cryptography su Python 3.15. Prima di firmare i pacchetti verifica staticamente che le estensioni non richiedano DLL Python assenti. La 0.5.2 pubblicata poteva funzionare sul PC di compilazione ma non su un PC senza Python. Per un avviatore 0.5.2 che non parte occorre prima applicare la correzione manuale della DLL oppure installare il nuovo pacchetto completo: un avviatore che non parte non può aggiornarsi da solo.
 
 La 0.4.1 aggiunge **Seleziona lotto**, che seleziona con un clic le unità ammesse dai controlli preliminari, e un registro JSON salvato appena termina il lavoro su ogni disco. Rimangono una conferma iniziale per il lotto e i controlli nativi prima di ciascuna cancellazione. Nessun nuovo disco viene cancellato automaticamente quando viene collegato. Le unità non protette che non superano i controlli sono indicate come “Escluso dal lotto”, con la motivazione; i registri e il riepilogo riguardano le unità effettivamente selezionate.
 

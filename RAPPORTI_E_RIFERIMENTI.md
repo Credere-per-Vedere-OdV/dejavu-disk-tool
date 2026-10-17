@@ -1,6 +1,6 @@
 # Rapporti, riferimenti e attestazione dell'attività
 
-Versione 0.5.2-beta — verifica delle fonti: 16 ottobre 2026.
+Versione 0.5.3-beta — verifica delle fonti: 16 ottobre 2026.
 
 ## Che cosa rilascia il programma
 

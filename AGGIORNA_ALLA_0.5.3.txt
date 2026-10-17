@@ -1,0 +1,23 @@
+DEJAVU DISK TOOL 0.5.3-beta - AVVIO SU PC SENZA PYTHON
+
+La 0.5.3 include la DLL mancante dell'avviatore e controlla le dipendenze
+Windows prima di preparare i pacchetti firmati.
+
+SUL PC DEL RESPONSABILE, GIA' USATO PER COMPILARE
+
+1. Chiudi il programma e la finestra della compilazione precedente.
+2. Estrai il nuovo ZIP in una cartella temporanea.
+3. Copia tutto il contenuto della cartella Dejavu_DiskTool dentro la
+   cartella dei sorgenti gia' usata, quella con Crea_EXE.cmd.
+   Accetta di unire le cartelle e sostituire i file corrispondenti.
+4. Esegui Crea_EXE.cmd. Conserva la chiave di rilascio originale.
+5. Prova l'installazione completa su un Windows 11 senza Python.
+   Questa prova e' necessaria anche se l'avvio sul PC di compilazione riesce.
+6. Aggiorna i sorgenti su GitHub e pubblica una nuova Release v0.5.3-beta
+   con i quattro allegati appena generati nella cartella release.
+
+Non sostituire gli allegati gia' pubblicati della 0.5.2 con nuovi pacchetti
+ricompilati. L'avviatore non aggiorna se stesso: la sua cartella _internal
+va aggiornata manualmente sulle postazioni 0.5.2 interessate, oppure va
+installato il nuovo pacchetto completo. Non occorre installare Python
+sulle postazioni degli operatori.
