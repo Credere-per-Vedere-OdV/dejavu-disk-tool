@@ -10,7 +10,7 @@ import os
 import struct
 import time
 
-from .core import Blocked, Disk, norm
+from .core import Blocked, Disk, norm, usable_serial
 
 U8, U16, U32, U64 = C.c_uint8, C.c_uint16, C.c_uint32, C.c_uint64
 IOCTL_STORAGE_QUERY_PROPERTY = 0x002D1400
@@ -273,7 +273,7 @@ class NativeApi:
         for name, identify in probes:
             try:
                 identity = ata_identity(identify(handle))
-                if not identity["serial"] or not identity["model"] or any(
+                if not usable_serial(identity["serial"]) or not identity["model"] or any(
                         not 32 <= ord(char) <= 126 for char in identity["serial"] + identity["model"]):
                     raise ValueError("IDENTIFY senza modello e seriale validi.")
                 # A USB descriptor may identify the enclosure, while IDENTIFY

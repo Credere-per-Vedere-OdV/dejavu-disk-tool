@@ -20,6 +20,12 @@ def norm(value: str) -> str:
     return "".join(str(value).split()).upper()
 
 
+def usable_serial(value: str) -> bool:
+    """An empty or all-zero placeholder cannot identify a physical drive."""
+    serial = norm(value)
+    return bool(serial) and set(serial) != {"0"}
+
+
 @dataclass(frozen=True)
 class Disk:
     number: int
@@ -44,6 +50,9 @@ class Disk:
     native_methods: tuple[str, ...] = ()
     security_state: tuple[str, ...] = ()
     enhanced_erase_minutes: int = 0
+    transport_model: str = ""
+    firmware_serial: str = ""
+    identify_transport: str = ""
 
     @property
     def key(self) -> tuple:
@@ -95,8 +104,8 @@ def validate_target(selected: Disk, fresh: Inventory) -> Disk:
         raise Blocked("Capacità o dimensione dei settori non supportata.")
     if current.size % current.sector_size:
         raise Blocked("La capacità non corrisponde a un numero intero di settori.")
-    if not norm(current.serial):
-        raise Blocked("Numero di serie non disponibile: identità insufficiente.")
+    if not usable_serial(current.serial):
+        raise Blocked("Numero di serie non disponibile o non valido: identità insufficiente.")
     if sum(norm(d.serial) == norm(current.serial) for d in fresh.disks) > 1:
         raise Blocked("Numero di serie duplicato: impossibile distinguere le unità.")
     if current.bus in ("RAID", "Virtual", "StorageSpaces", "FileBackedVirtual"):

@@ -1,11 +1,11 @@
-# Validazione della beta 0.5.3
+# Validazione della beta 0.5.5
 
-17 ottobre 2026 — Linux, Python 3.12 a 64 bit. Nessun Windows nativo disponibile e nessun disco reale aperto.
+27 ottobre 2026 — Linux, Python 3.12 a 64 bit. Nessun Windows nativo disponibile e nessun disco reale aperto.
 
 ## Eseguito
 
 - Compilazione sintattica dei sorgenti.
-- 125 test unittest superati: 88 test per il motore e i registri, 27 per gli aggiornamenti firmati, 5 per la tracciabilità e i limiti documentali dei rapporti e 5 per le dipendenze Windows del pacchetto.
+- 142 test unittest superati: 95 test per il motore e i registri, 27 per gli aggiornamenti firmati, 5 per la tracciabilità e i limiti documentali dei rapporti, 5 per le dipendenze Windows del pacchetto e 10 per la selezione durante il rilevamento.
 - Simulazione completa: due HDD riusciti, uno SSD riuscito, un errore HDD di lettura; rapporti HTML e JSON salvati e marcati SIMULAZIONE.
 - Verifica reale della GUI in un display virtuale Linux: due loghi corretti, selezione e protezione del sistema, progressione SSD, pulsanti di avvio e conferma visibili con finestra 900×600. Il collaudo DPI e Windows resta necessario.
 - Loghi originali preservati byte per byte; caricamento PNG completo con Pillow e ridimensionamento Lanczos al posto del sottocampionamento Tk. Logo CpV a 120 pixel alla densità base, con raster adattato al display.
@@ -18,7 +18,7 @@ I test esistenti coprono capacità e ultimo blocco, settori 512/4096, scrittura/
 
 I nuovi test verificano capacità SSD e parole IDENTIFY non valide, sicurezza ATA, firme/registri a 48 bit, CDB SAT-16 e direzione dati, risposte incomplete/errori, metodi mancanti e NVMe escluso, protezioni, seriale cambiato, stato Sanitize prima di avviare, congelamento e lavoro già in corso, vecchio successo non riutilizzato dopo un comando rifiutato, annullamento dopo l'avvio seguito fino al completamento, sequenza password/prepare/enhanced erase, DPAPI fallita prima di impostare la password, registro cifrato conservato su errore, rapporti SSD con conteggi nulli e recupero senza erase né attestazione di cancellazione.
 
-Questi risultati dimostrano il comportamento nei casi simulati. Non verificano firmware, passaggio dei comandi attraverso docking/driver, DPAPI reale o cancellazione fisica della memoria NAND. L'EXE 0.5.3 non è stato costruito o collaudato su Windows nell'ambiente automatico di sviluppo. Non è una certificazione NIST/Purge.
+Questi risultati dimostrano il comportamento nei casi simulati. Non verificano firmware, passaggio dei comandi attraverso docking/driver, DPAPI reale o cancellazione fisica della memoria NAND. L'EXE 0.5.5 non è stato costruito o collaudato su Windows nell'ambiente automatico di sviluppo. Non è una certificazione NIST/Purge.
 
 ## Aggiornamenti firmati: prove eseguite
 
@@ -56,7 +56,31 @@ Riscontro del responsabile del 16 ottobre 2026: Andrea ha riferito compilazione 
 
 17 ottobre 2026: il responsabile ha segnalato il mancato avvio della 0.5.2 su un altro Windows 11, con errore di caricamento di cryptography `_rust`. L'analisi statica delle importazioni PE dell'installer pubblicato ha individuato la dipendenza `python3t.dll`, assente nell'avviatore. Il runtime `python315.dll` distribuito coincide byte per byte con quello nell'archivio embeddable ufficiale Python 3.15.0 x64. Sono stati verificati SHA-256 dell'archivio rispetto alla pagina python.org, provenienza e compatibilità della DLL recuperata, e chiusura delle dipendenze Python di avviatore e app dopo l'aggiunta. Non è stato eseguito codice Windows durante questa verifica.
 
-La compilazione ora raccoglie le DLL Stable ABI dall'interprete effettivo dell'ambiente di compilazione, distinguendo lo shim compatibile dal runtime free-threaded eventualmente installato insieme. Rifiuta un pacchetto che contenga estensioni con DLL Python mancanti. Cinque test riproducono l'omissione, verificano entrambe le disposizioni delle DLL, il rifiuto dell'architettura non x64 e dei PE troncati. Il successivo avvio reale sul portatile deve ancora essere confermato.
+La compilazione ora raccoglie le DLL Stable ABI dall'interprete effettivo dell'ambiente di compilazione, distinguendo lo shim compatibile dal runtime free-threaded eventualmente installato insieme. Rifiuta un pacchetto che contenga estensioni con DLL Python mancanti. Cinque test riproducono l'omissione, verificano entrambe le disposizioni delle DLL, il rifiuto dell'architettura non x64 e dei PE troncati. Andrea ha successivamente confermato l’avvio corretto sul portatile dopo l’aggiunta della DLL. La Release 0.5.3-beta risulta pubblicata dal 17 ottobre; la diagnostica del 24 ottobre conferma l’esecuzione della 0.5.3 con Python 3.15.0 su Windows 11 Pro.
+
+## Riconoscimento della docking USB: correzione 0.5.4
+
+La diagnostica reale del 24 ottobre mostra due Samsung SSD 850 PRO 128GB, con firmware diversi, dietro una Sabrent Dual SATA Bridge (`VID_174C&PID_55AA`). Entrambi rispondono a SAT-16 IDENTIFY e dichiarano Enhanced Security Erase, senza blocchi ATA riportati. Il nome, seriale composto da zeri e UniqueId esposti da Windows appartengono al bridge e sono condivisi. La 0.5.3 rifiutava l’identità firmware perché il nome generico del bridge non corrispondeva al modello Samsung. La diagnostica della 0.5.3 non conservava separatamente il seriale firmware dei dischi bloccati.
+
+La 0.5.4 accetta l’identità ATA sul singolo PhysicalDrive verificato quando Windows espone un nome generico SATA Bridge; richiede comunque un collegamento USB nativo coerente, tipo HDD/SSD confermato e seriale firmware non vuoto o composto da zeri. Mantiene il blocco per un modello Windows concreto in conflitto. Espone nella GUI l’identità del disco e conserva separatamente i metadati del bridge. Restano il rifiuto dei seriali firmware duplicati e i controlli di capacità, settori, numero fisico, unità protette e identità ricontrollata sul dispositivo aperto.
+
+Sette nuove regressioni, senza accesso a dischi reali, riproducono due SSD uguali per modello/capacità con bridge condiviso e seriali firmware sintetici distinti, seriali firmware duplicati, identità/metodo mancanti o sicurezza ATA congelata, geometria incoerente, disco cambiato, seriale composto da zeri anche con un solo bersaglio e risposta IDENTIFY con seriale composto da zeri. I test precedenti sul modello di un altro disco, mancata identità e swap rimangono attivi.
+
+Queste prove verificano il riconoscimento e le protezioni nel software. Non confermano ancora l’avvio, l’accettazione o il completamento di Enhanced Security Erase sulla docking fisica. Algoritmi HDD/SSD, avviatore, protocollo e chiavi degli aggiornamenti non sono stati modificati.
+
+## Selezione durante il rilevamento: correzione 0.5.5
+
+Il rilevamento automatico ogni 15 secondi usava lo stesso blocco della selezione previsto per il rilevamento iniziale e manuale. Il difetto è stato riprodotto eseguendo la nuova prova contro il codice originale 0.5.4: le caselle diventano disabilitate mentre il worker è in attesa. La prova passa con la correzione.
+
+Dieci regressioni verificano selezione individuale e del lotto durante un worker reale in attesa, avvio bloccato fino al risultato, conservazione delle righe e delle spunte a dati invariati, disco cambiato nello stesso numero fisico senza trasferimento della spunta, perdita della selezione quando cambiano protezione o ammissibilità, errore di rilevamento, nuova unità non selezionata, rilevamento manuale e iniziale bloccanti, rispetto di selezioni/conferma/lavoro/esiti e azzeramento degli esiti dopo una richiesta manuale. I dati e i widget dei test sono simulati; nessun disco fisico viene aperto.
+
+La verifica è stata ripetuta con Tk reale su display virtuale Linux, mettendo in pausa il worker di rilevamento: le caselle e Seleziona lotto restano azionabili, il sistema è protetto, l'avvio è bloccato fino al risultato e le stesse righe conservano le spunte dopo il controllo. I pulsanti della conferma sono visibili a 900×600. Questa prova non sostituisce il collaudo Windows/DPI.
+
+Algoritmi e comandi HDD/SSD, identificazione nativa, avviatore, protocollo degli aggiornamenti e loghi sono invariati rispetto alla 0.5.4.
+
+## Riscontro hardware ancora da chiarire
+
+Il responsabile ha fornito un rapporto 0.5.4 con esito nativo positivo per due SSD Samsung e ha successivamente segnalato la mancata rilevazione di uno di essi. Le nuove diagnostiche mostrano il Samsung rimasto rilevabile; il responsabile riferisce anche il riconoscimento di un Kingston nuovo. Questi dati non stabiliscono la causa della scomparsa del primo SSD né dimostrano l'efficacia fisica della cancellazione. La correzione 0.5.5 riguarda la selezione grafica e non risolve il problema del disco mancante. Sospendere le cancellazioni SSD sulla configurazione interessata e verificare il disco con un collegamento indipendente prima della distribuzione operativa.
 
 ## Collaudo Windows da eseguire
 
@@ -65,6 +89,7 @@ Il responsabile tecnico usa unità prive di dati da conservare. Iniziare con un 
 | Prova | Risultato necessario |
 | --- | --- |
 | GUI e simulazione | Due loghi, pulsanti di avvio e conferma visibili, lista scorrevole; esiti attesi. Provare DPI 125%, 150%, 200%. |
+| Selezione e controllo periodico | Senza selezioni attendere almeno un minuto: caselle e Seleziona lotto restano azionabili durante gli aggiornamenti automatici. Selezionare durante un controllo e verificare che la spunta resti; avvio bloccato fino al risultato. Sistema sempre protetto. Nessuna cancellazione necessaria per questa prova. |
 | Rilevamento | Modello, seriale, firmware, capacità e metodi corrispondenti; Windows/EFI/paging/programma/rapporti protetti, nessuna modifica ai dischi. |
 | HDD USB e SATA | Scrittura, flush e rilettura completi su dischi di prova; protezioni conservate. |
 | SSD Block Erase | Stato leggibile prima dell'avvio, comando accettato, progresso e completamento confermati; metodo nel rapporto. |

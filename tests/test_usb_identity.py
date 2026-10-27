@@ -44,13 +44,13 @@ def native_info(number, serial, model, kind="HDD"):
 
 
 class UsbIdentityTests(unittest.TestCase):
-    def scan(self, info):
+    def scan(self, info, payload=None):
         def probe(number):
             value = info[number]
             if isinstance(value, Exception):
                 raise value
             return value
-        with patch("dejavu.inventory.powershell", return_value=json.dumps(windows_payload())), \
+        with patch("dejavu.inventory.powershell", return_value=json.dumps(payload or windows_payload())), \
              patch("dejavu.windows_io.inspect_disk", side_effect=probe) as inspect:
             result = WindowsInventory(Path("."), Path(".")).scan()
         self.assertEqual([call.args[0] for call in inspect.call_args_list], [1, 2])
@@ -59,6 +59,93 @@ class UsbIdentityTests(unittest.TestCase):
     def good_info(self):
         return {1:native_info(1,"WD-REAL-001","WDC WD5000LPLX-08ZNTT0"),
                 2:native_info(2,"SEAGATE-REAL-002","ST500DM002-1BD142")}
+
+    def bridge_case(self):
+        """Anonymous reproduction of a dual Sabrent bridge's metadata shape."""
+        payload = windows_payload()
+        info = {}
+        for number in (1, 2):
+            payload["Disks"][number].update(
+                Model="Sabrent Dual SATA Bridge", Serial="00000000000000000000",
+                UniqueId="5000000000000001", Size=128035676160)
+            info[number] = native_info(number, f"TEST-SSD-{number}",
+                                       "Samsung SSD 850 PRO 128GB", "SSD")
+            info[number].update(size=128035676160,
+                                transport_serial="00000000000000000000",
+                                firmware_revision=f"TEST-FIRMWARE-{number}",
+                                native_methods=("ATA_SECURITY_ENHANCED",),
+                                security_state=(), identify_transport="SAT-16")
+        return payload, info
+
+    def test_generic_dual_bridge_uses_distinct_ssd_firmware_identities(self):
+        payload, info = self.bridge_case()
+        inventory = self.scan(info, payload)
+        for target in inventory.disks[1:]:
+            self.assertEqual(target.kind, "SSD")
+            self.assertEqual(target.model, "Samsung SSD 850 PRO 128GB")
+            self.assertEqual(target.serial, f"TEST-SSD-{target.number}")
+            self.assertEqual(target.firmware_serial, target.serial)
+            self.assertEqual(target.transport_model, "Sabrent Dual SATA Bridge")
+            self.assertEqual(target.transport_serial, "00000000000000000000")
+            self.assertEqual(target.identity_source, "ATA")
+            self.assertEqual(target.identify_transport, "SAT-16")
+            self.assertEqual(validate_target(target, inventory), target)
+        self.assertTrue(inventory.disks[0].protected)
+        with self.assertRaises(Blocked):
+            validate_target(inventory.disks[0], inventory)
+
+    def test_generic_bridge_does_not_authorize_duplicate_firmware_serials(self):
+        payload, info = self.bridge_case()
+        info[2]["serial"] = info[1]["serial"]
+        inventory = self.scan(info, payload)
+        for target in inventory.disks[1:]:
+            with self.assertRaisesRegex(Blocked, "duplicato"):
+                validate_target(target, inventory)
+
+    def test_generic_bridge_missing_identity_or_capability_stays_blocked(self):
+        for change in ({"serial":""}, {"serial":"00000000000000000000"},
+                       {"firmware_model":""}, {"bus_type":11},
+                       {"kind":"UNKNOWN"}, {"native_methods":()},
+                       {"security_state":("congelata",)}, {"serial_source":"DESCRIPTOR"}):
+            with self.subTest(change=change):
+                payload, info = self.bridge_case()
+                info[1].update(change)
+                inventory = self.scan(info, payload)
+                with self.assertRaises(Blocked):
+                    validate_target(inventory.disks[1], inventory)
+
+    def test_generic_bridge_wrong_handle_geometry_stays_blocked(self):
+        for change in ({"number":2}, {"size":64000000000}, {"sector_size":4096}):
+            with self.subTest(change=change):
+                payload, info = self.bridge_case()
+                info[1].update(change)
+                inventory = self.scan(info, payload)
+                with self.assertRaises(Blocked):
+                    validate_target(inventory.disks[1], inventory)
+
+    def test_generic_bridge_new_serial_invalidates_selection_and_open_handle(self):
+        from dejavu.ssd import SsdSession
+        payload, info = self.bridge_case()
+        before = self.scan(info, payload)
+        info[1]["serial"] = "REPLACEMENT-SSD"
+        after = self.scan(info, payload)
+        with self.assertRaisesRegex(Blocked, "cambiato"):
+            validate_target(before.disks[1], after)
+        fake = Mock()
+        fake.disk_info.return_value = info[1]
+        with patch("dejavu.windows_io.NativeApi", return_value=fake):
+            session = SsdSession(before.disks[1], Path("unused-recovery"))
+            session.handle = "fake"
+            with self.assertRaisesRegex(Blocked, "serie"):
+                session._assert_identity()
+        fake.ioctl.assert_not_called()
+
+    def test_all_zero_serial_is_blocked_even_for_a_single_target(self):
+        target = Disk(1, "SSD", "00000000000000000000", "ID", 4096, 512, "USB", "SSD",
+                      identity_source="ATA", firmware_model="SSD",
+                      native_methods=("ATA_SECURITY_ENHANCED",))
+        with self.assertRaisesRegex(Blocked, "serie"):
+            validate_target(target, Inventory((target,), True))
 
     def test_distinct_firmware_serials_resolve_shared_usb_serial(self):
         inventory = self.scan(self.good_info())
@@ -200,6 +287,13 @@ class NativeUsbProbeTests(unittest.TestCase):
         self.assertEqual(result["kind"],"UNKNOWN")
         self.assertEqual(result["serial_source"],"DESCRIPTOR")
         self.assertTrue(any("senza modello" in note for note in result["probe_notes"]))
+
+    def test_all_zero_firmware_serial_is_not_a_valid_identify_response(self):
+        api = self.api()
+        api.identify_sat.side_effect = lambda handle,length: ata_data(serial="00000000000000000000")
+        result = api.disk_info("fake")
+        self.assertEqual(result["kind"], "UNKNOWN")
+        self.assertEqual(result["serial_source"], "DESCRIPTOR")
 
     def test_invalid_identify_checksum_is_rejected(self):
         data=bytearray(ata_data())

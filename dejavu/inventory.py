@@ -8,7 +8,7 @@ import os
 import subprocess
 import sys
 
-from .core import Disk, Inventory, norm
+from .core import Disk, Inventory, norm, usable_serial
 
 
 INVENTORY_SCRIPT = r'''
@@ -136,7 +136,8 @@ def parse_inventory(payload: dict) -> Inventory:
             protected_reasons=_strings(item.get("Protected")),
             volume_paths=_strings(item.get("Volumes")),
             read_only=item["ReadOnly"], offline=item["Offline"],
-            transport_serial=str(item.get("Serial", "")).strip(), identity_source="WINDOWS"))
+            transport_serial=str(item.get("Serial", "")).strip(), identity_source="WINDOWS",
+            transport_model=str(item["Model"]).strip()))
     numbers = [disk.number for disk in disks]
     if len(set(numbers)) != len(numbers) or any(number < 0 for number in numbers):
         raise ValueError("Numerazione dei dischi ambigua.")
@@ -196,13 +197,30 @@ class WindowsInventory:
                         else:
                             kind, evidence = native_kind, info["evidence"]
                     serial = disk.serial or info["serial"]
+                    model = disk.model
                     source, firmware_model = "WINDOWS", ""
                     if info.get("serial_source") == "ATA":
                         firmware_model = info.get("firmware_model", "")
+                        # A SATA bridge may expose its own generic product name
+                        # and serial for every bay. IDENTIFY was issued on this
+                        # PhysicalDrive handle; number/size/sector were checked
+                        # above. Keep the enclosure identifiers as metadata and
+                        # use the actual drive's model and unique firmware serial.
+                        # A non-generic, conflicting drive model stays blocked.
+                        usb_model = norm(disk.model)
+                        model_matches = norm(firmware_model) == usb_model
+                        generic_bridge = "SATABRIDGE" in usb_model
                         if (disk.bus == "USB" and info.get("bus_type") == 7
-                                and firmware_model and norm(firmware_model) == norm(disk.model)
+                                and firmware_model and usable_serial(info["serial"])
+                                and (model_matches or generic_bridge)
                                 and info["kind"] in ("HDD", "SSD")):
                             serial, source = info["serial"], "ATA"
+                            if kind in ("HDD", "SSD"):
+                                model = firmware_model
+                        elif not usable_serial(info["serial"]):
+                            kind, evidence = "UNKNOWN", "IDENTIFY senza numero di serie valido del disco"
+                        elif disk.bus == "USB" and info.get("bus_type") != 7:
+                            kind, evidence = "UNKNOWN", "Identità ATA e collegamento USB non coerenti"
                         elif disk.serial and norm(disk.serial) != norm(info["serial"]):
                             kind, evidence = "UNKNOWN", "Identità ATA non associabile con certezza al disco Windows"
                         elif disk.bus != "USB":
@@ -211,9 +229,11 @@ class WindowsInventory:
                             kind, evidence = "UNKNOWN", "Modello ATA e modello Windows non corrispondenti"
                     elif disk.serial and info["serial"] and norm(disk.serial) != norm(info["serial"]):
                         kind, evidence = "UNKNOWN", "Numero di serie incoerente"
-                    enriched.append(replace(disk, serial=serial, kind=kind,
+                    enriched.append(replace(disk, model=model, serial=serial, kind=kind,
                                             media_evidence=evidence, identity_source=source,
                                             firmware_model=firmware_model,
+                                            firmware_serial=info["serial"] if info.get("serial_source") == "ATA" else "",
+                                            identify_transport=info.get("identify_transport", ""),
                                             firmware_revision=info.get("firmware_revision", ""),
                                             native_methods=tuple(info.get("native_methods", ())),
                                             security_state=tuple(info.get("security_state", ())),

@@ -1,0 +1,57 @@
+DEJAVU DISK TOOL 0.5.5-beta - SELEZIONE STABILE DURANTE IL RILEVAMENTO
+
+La 0.5.4 disabilitava le caselle a ogni rilevamento automatico, ogni
+15 secondi. La 0.5.5 lascia disponibili le caselle e Seleziona lotto
+durante quel controllo e conserva le righe quando i dati non cambiano.
+L'avvio attende comunque l'esito del controllo. Un disco sostituito,
+protetto o non piu' ammesso perde la selezione; nessun nuovo disco
+viene selezionato o cancellato automaticamente.
+
+Questa correzione NON risolve il Samsung non piu' rilevato dopo la prova
+SSD: la causa e' ancora in verifica. Mantenere sospese le cancellazioni
+SSD sulla configurazione interessata; per provare la GUI non serve
+cancellare nessun disco. Algoritmi HDD/SSD e aggiornamenti invariati.
+
+Questo ZIP contiene sorgenti: il nuovo EXE va creato su Windows.
+
+SUL PC GIA' UTILIZZATO PER COMPILARE
+
+1. A cancellazioni terminate, chiudi il programma.
+2. Estrai il nuovo ZIP in una cartella temporanea pulita.
+3. Copia il contenuto di Dejavu_DiskTool nella vecchia cartella dei
+   sorgenti, quella con Crea_EXE.cmd. Unisci le cartelle e sostituisci
+   i file corrispondenti. Conserva la chiave di rilascio originale.
+4. Esegui Crea_EXE.cmd. Controlla che la compilazione termini senza errori.
+5. Apri release\DejavuDiskTool\Prova_interfaccia.cmd per la simulazione.
+6. Copia il nuovo DejavuDiskTool-Installazione-Windows-x64.zip dalla
+   cartella release al PC con la docking. Estrai tutta la cartella in
+   una nuova posizione scrivibile sul disco di Windows. Non copiare
+   soltanto l'EXE e non mescolare i file con una vecchia installazione.
+7. In quella cartella apri AvviaDejavu.exe. Il fondo della GUI deve
+   mostrare 0.5.5-beta. Lascia la lista senza selezioni per almeno un
+   minuto: le caselle non devono disabilitarsi agli aggiornamenti
+   automatici. Il disco di sistema deve restare sempre protetto.
+8. Seleziona un disco mentre compare Aggiornamento automatico in corso:
+   la spunta deve restare dopo il controllo. Avvia cancellazione rimane
+   disabilitato fino alla conclusione del rilevamento. NON premerlo:
+   questa verifica riguarda soltanto rilevamento e selezione.
+9. Prova Rileva dischi: essendo un controllo richiesto manualmente,
+   blocca la selezione fino al termine. I dischi aggiunti sono sempre
+   senza spunta. Ripeti Rilevamento_senza_cancellazione.cmd se necessario.
+
+GITHUB - SOLO DOPO IL COLLAUDO E LA VERIFICA DEL PROBLEMA SSD
+
+Per i sorgenti usare la cartella pulita estratta dallo ZIP. Non caricare
+le cartelle build, release o .venv della compilazione. La nuova versione
+e' 0.5.5-beta; non sostituire i pacchetti delle release precedenti.
+
+La futura Release v0.5.5-beta usa i quattro file appena generati nella
+cartella release: DejavuDiskTool-Installazione-Windows-x64.zip,
+DejavuDiskTool-Windows-x64.zip, aggiornamento.json, aggiornamento.sig.
+Controllare che aggiornamento.json riporti 0.5.5-beta.
+La firma .sig viene generata sul PC di compilazione con la stessa chiave
+privata originaria. Non e' inclusa in questo ZIP dei sorgenti.
+
+Gli avviatori 0.5.3/0.5.4 funzionanti possono ricevere l'app aggiornata
+dopo la pubblicazione. Sulle postazioni degli operatori non serve Python.
+Non caricare diagnostiche, rapporti o chiavi private su GitHub.

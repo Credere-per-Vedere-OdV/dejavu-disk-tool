@@ -65,7 +65,8 @@ class DiskRow:
             self.detail.configure(text="Metodo e collegamento vengono verificati prima dell'avvio.")
         elif disk.kind == "UNKNOWN":
             self.status.configure(text="Tipo non confermato", fg=AMBER)
-            self.detail.configure(text="La cancellazione sarà bloccata finché il tipo di disco non è identificato.")
+            self.detail.configure(text=disk.media_evidence or
+                                  "La cancellazione sarà bloccata finché il tipo di disco non è identificato.")
         elif disk.read_only:
             self.status.configure(text="Sola lettura", fg=AMBER)
         elif not disk.serial:
@@ -123,6 +124,7 @@ class Application:
         self.inventory = Inventory((), False)
         self.rows = {}
         self.busy = self.scanning = self.confirming = False
+        self.background_scan = False
         self.have_results = False
         self.closing = False
         self.reports = None
@@ -246,7 +248,8 @@ class Application:
         return rows
 
     def select_batch(self):
-        if self.busy or self.scanning or self.confirming or self.have_results:
+        if (self.busy or self.confirming or self.have_results
+                or (self.scanning and not self.background_scan)):
             return
         eligible = self.eligible_rows()
         select = not eligible or not all(row.selected.get() for row in eligible)
@@ -263,8 +266,11 @@ class Application:
 
     def _controls(self):
         active = not (self.busy or self.scanning or self.confirming)
-        selectable = active and not self.have_results
-        self.start_button.configure(state="normal" if selectable and self.inventory.protection_ok and self.selected() else "disabled")
+        # A background refresh must not interrupt selection. Starting still
+        # waits for the fresh inventory and its protection/identity checks.
+        selectable = not (self.busy or self.confirming or self.have_results
+                          or (self.scanning and not self.background_scan))
+        self.start_button.configure(state="normal" if active and selectable and self.inventory.protection_ok and self.selected() else "disabled")
         self.refresh.configure(state="normal" if active else "disabled")
         eligible = self.eligible_rows()
         all_selected = bool(eligible) and all(row.selected.get() for row in eligible)
@@ -273,7 +279,7 @@ class Application:
         for row in self.rows.values():
             row.set_enabled(selectable, self.inventory.protection_ok)
 
-    def scan(self, manual=False):
+    def scan(self, manual=False, background=False):
         if self.busy or self.scanning or self.confirming or self.closing:
             return
         # Preserve completed outcomes until the operator requests a new list.
@@ -282,7 +288,10 @@ class Application:
         if manual:
             self.have_results = False
         self.scanning = True
-        self.connection.configure(text="Rilevamento dei dischi e delle unità protette…", fg=MUTED)
+        self.background_scan = background and bool(self.rows) and not manual
+        self.connection.configure(text=(
+            "Aggiornamento automatico in corso. Puoi continuare a selezionare i dischi."
+            if self.background_scan else "Rilevamento dei dischi e delle unità protette…"), fg=MUTED)
         self._controls()
 
         def work():
@@ -295,21 +304,37 @@ class Application:
 
     def _automatic_scan(self):
         if not self.selected():
-            self.scan()
+            self.scan(background=True)
         if not self.closing:
             self.root.after(15000, self._automatic_scan)
 
     def show_inventory(self, inventory):
+        # Keep the same widgets (including focus and checked state) when only
+        # the scan timestamp changes. Explicit refreshes reset completed rows.
+        unchanged = (self.background_scan
+                     and inventory.disks == self.inventory.disks
+                     and inventory.protection_ok == self.inventory.protection_ok
+                     and inventory.error == self.inventory.error)
         previous = {row.disk.key for row in self.rows.values() if row.selected.get()}
-        for row in self.rows.values():
-            row.frame.destroy()
-        self.rows.clear()
+        if not unchanged:
+            for row in self.rows.values():
+                row.frame.destroy()
+            self.rows.clear()
         self.inventory = inventory
         self.scanning = False
-        for disk in inventory.disks:
-            row = DiskRow(self.list_frame, disk, self.selection_changed, inventory.protection_ok)
-            row.selected.set(disk.key in previous and not disk.protected)
-            self.rows[disk.number] = row
+        self.background_scan = False
+        if not unchanged:
+            for disk in inventory.disks:
+                row = DiskRow(self.list_frame, disk, self.selection_changed, inventory.protection_ok)
+                self.rows[disk.number] = row
+        for row in self.rows.values():
+            selected = row.disk.key in previous
+            if selected:
+                try:
+                    validate_target(row.disk, inventory)
+                except Blocked:
+                    selected = False
+            row.selected.set(selected)
         if inventory.protection_ok:
             protected = sum(disk.protected for disk in inventory.disks)
             self.connection.configure(text=f"{len(inventory.disks)} dischi rilevati · {protected} protetti · "

@@ -1,6 +1,6 @@
 # Dejavu DiskTool — beta Windows
 
-Versione 0.5.3-beta · 17 ottobre 2026
+Versione 0.5.5-beta · 27 ottobre 2026
 
 Per Credere per Vedere OdV e il Progetto Dejavu — Laboratorio di Riciclo e Terapia Occupazionale. Una sola procedura: collegare i dischi, selezionare quelli da cancellare, confermare e leggere l'esito di ciascuno. Non occorre indicare quante docking sono collegate. Il progetto deriva dall'analisi del DFTool di Alessio, con un motore Windows separato.
 
@@ -8,13 +8,19 @@ La 0.5.0 migliora la resa dei loghi originali con ridimensionamento Lanczos e im
 
 La **0.5.1** integra nei rapporti HTML e nei JSON i riferimenti di contesto GDPR/Garante e quelli documentali NIST SP 800-88 Rev. 2. Aggiunge identificativi collegati tra lotto e registri per unità, impronta SHA-256 del JSON sulla stampa e campi manuali per affidante, incarico, operatore, firma e validazione del responsabile. Il software non appone firme qualificate e non certifica automaticamente conformità normativa o livello Purge. Vedere `RAPPORTI_E_RIFERIMENTI.md`.
 
-La **0.5.2** rende più leggibile la parte da compilare a mano: due schede A4 dedicate, etichette da 18 punti, spazi a tutta larghezza e righe da 12 mm. Ogni scheda riporta l'identificativo del rapporto e le simulazioni sono indicate anche sulle schede. La compilazione resta manuale e separata dai dati JSON. È inclusa la correzione del test ZIP per Windows. Per ricreare l'EXE seguire `AGGIORNA_ALLA_0.5.3.txt`.
+La **0.5.2** rende più leggibile la parte da compilare a mano: due schede A4 dedicate, etichette da 18 punti, spazi a tutta larghezza e righe da 12 mm. Ogni scheda riporta l'identificativo del rapporto e le simulazioni sono indicate anche sulle schede. La compilazione resta manuale e separata dai dati JSON. È inclusa la correzione del test ZIP per Windows. Per ricreare l'EXE seguire `AGGIORNA_ALLA_0.5.5.txt`.
 
 La **0.5.3** corregge il confezionamento dell'avviatore: include esplicitamente le DLL Stable ABI corrette dell'interprete usato per compilare, compresa `python3t.dll` richiesta da cryptography su Python 3.15. Prima di firmare i pacchetti verifica staticamente che le estensioni non richiedano DLL Python assenti. La 0.5.2 pubblicata poteva funzionare sul PC di compilazione ma non su un PC senza Python. Per un avviatore 0.5.2 che non parte occorre prima applicare la correzione manuale della DLL oppure installare il nuovo pacchetto completo: un avviatore che non parte non può aggiornarsi da solo.
 
 La 0.4.1 aggiunge **Seleziona lotto**, che seleziona con un clic le unità ammesse dai controlli preliminari, e un registro JSON salvato appena termina il lavoro su ogni disco. Rimangono una conferma iniziale per il lotto e i controlli nativi prima di ciascuna cancellazione. Nessun nuovo disco viene cancellato automaticamente quando viene collegato. Le unità non protette che non superano i controlli sono indicate come “Escluso dal lotto”, con la motivazione; i registri e il riepilogo riguardano le unità effettivamente selezionate.
 
-**Stato:** sorgenti, GUI italiana, simulazione, test e script per creare l'EXE su Windows. I test usano file temporanei e API simulate. I comandi SSD, la docking, i driver Windows e l'EXE richiedono ancora un collaudo su hardware reale. Questa beta non costituisce una certificazione Purge per banche o altri donatori.
+La **0.5.4** corregge il riconoscimento dietro un generico “SATA Bridge”: modello e seriale della docking sono conservati come `transport_model` e `transport_serial`, mentre quelli letti con IDENTIFY sul singolo disco diventano l’identità usata per selezione, controlli e rapporti. La diagnostica conserva anche `firmware_serial` e `identify_transport`. Un modello Windows che identifica un altro disco concreto resta un conflitto; seriali firmware mancanti/duplicati, geometria incoerente e unità protette restano bloccati. La diagnostica ricevuta il 24 ottobre mostra due Samsung SSD 850 PRO 128GB con IDENTIFY SAT-16 e supporto dichiarato a Enhanced Security Erase: non è ancora un esito di cancellazione. Prima del lotto verificare il nuovo rilevamento e provare un solo SSD.
+
+La **0.5.5** mantiene utilizzabili le caselle e Seleziona lotto durante il rilevamento automatico ogni 15 secondi. Non ricrea le righe quando i dati sono invariati. L'avvio resta disabilitato finché il controllo non termina; una selezione effettuata nel frattempo è conservata soltanto se il disco mantiene la propria identità e supera i controlli. Il rilevamento iniziale e quello richiesto con Rileva dischi continuano a bloccare temporaneamente la selezione. Gli esiti di un lotto concluso restano visibili fino al rilevamento manuale.
+
+**SSD in verifica:** il responsabile ha riferito due esiti nativi positivi nella 0.5.4 e la successiva mancata rilevazione di uno dei due SSD Samsung. La causa non è ancora accertata. La 0.5.5 corregge soltanto la gestione dell'interfaccia; sulla configurazione interessata mantenere sospese le cancellazioni SSD e continuare con i soli controlli di rilevamento.
+
+**Stato:** sorgenti, GUI italiana, simulazione, test e script per creare l'EXE su Windows. I test usano file temporanei e API simulate. I comandi SSD, la docking, i driver Windows e l'EXE richiedono un collaudo specifico su hardware reale. Questa beta non costituisce una certificazione Purge per banche o altri donatori.
 
 ## Aggiornamento e prima prova
 
@@ -22,7 +28,7 @@ La 0.4.1 aggiunge **Seleziona lotto**, che seleziona con un clic le unità ammes
 2. Estrarre tutto il nuovo ZIP in una cartella nuova sul disco di sistema.
 3. Con Python già installato, aprire `Prova_interfaccia.cmd`. Modifica soltanto piccoli file di esempio, senza aprire dischi fisici.
 4. Selezionare i quattro esempi non protetti e avviare. Esiti attesi: due HDD riusciti, uno SSD riuscito, un HDD con errore di lettura. Il rapporto è marcato SIMULAZIONE.
-5. Per il primo collaudo reale, collegare **un solo SSD di prova, privo di dati da conservare**, e aprire `Rilevamento_senza_cancellazione.cmd`. Controllare seriale, modello, firmware e metodi prima di cancellarlo.
+5. Per provare questa correzione, aprire la GUI reale con i dischi collegati e attendere almeno un minuto senza selezionarli: le caselle delle unità non protette devono restare utilizzabili durante gli aggiornamenti automatici. Provare poi una selezione durante il controllo: l'avvio deve attendere la conclusione del rilevamento. Eseguire anche `Rilevamento_senza_cancellazione.cmd`. Non occorre avviare una cancellazione per verificare la correzione.
 
 Per i sorgenti serve Python 3.12, 3.13, 3.14 o 3.15 a 64 bit, con Tcl/Tk e launcher. Gli script CMD preparano automaticamente un ambiente dedicato con Pillow e cryptography; al primo avvio dei sorgenti serve Internet. Per avviare direttamente da terminale installare prima `requirements.txt`. Le dipendenze sono incorporate nella versione EXE e non richiedono installazioni sui PC degli operatori. `GUIDA_MAURO_RINNA.html` descrive il lavoro degli operatori. I rapporti inclusi in `esempi_rapporti` sono esempi, non riguardano i dischi collegati al PC.
 
@@ -105,7 +111,7 @@ Il programma per i colleghi è **`release\DejavuDiskTool\AvviaDejavu.exe`**. Dis
 
 Il controllo avviene prima dell'apertura e dell'elevazione: firma Ed25519, SHA-256 e verifica della struttura ZIP, preparazione in una cartella nuova, attivazione atomica. Senza rete o dopo un aggiornamento rifiutato resta utilizzabile la versione installata. Durante la cancellazione non avvengono aggiornamenti. Rapporti e impostazioni della postazione vengono conservati. L'avviatore si aggiorna manualmente se necessario; gli aggiornamenti automatici riguardano il programma e le sue librerie.
 
-La destinazione proposta è `Credere-per-Vedere-OdV/dejavu-disk-tool`: repository e prima release devono ancora essere configurati dal responsabile. Le versioni precedenti richiedono questa prima sostituzione manuale. La guida **`AGGIORNAMENTI_GITHUB.md`** contiene i passaggi e i quattro allegati da pubblicare per ogni release.
+La destinazione configurata è `Credere-per-Vedere-OdV/dejavu-disk-tool`: il repository pubblico e la Release 0.5.3-beta sono stati verificati il 24 ottobre 2026. Questa fornitura contiene i sorgenti 0.5.5 da compilare su Windows; non pubblica automaticamente una release. Le postazioni con avviatore 0.5.3 o 0.5.4 funzionante possono ricevere l'app corretta tramite aggiornamento automatico dopo la pubblicazione. Prima della distribuzione operativa chiarire il problema SSD descritto sopra. La guida **`AGGIORNAMENTI_GITHUB.md`** contiene i passaggi e i quattro allegati da pubblicare per ogni release.
 
 ## Riferimenti e sviluppo
 
