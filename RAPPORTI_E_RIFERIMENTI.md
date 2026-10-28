@@ -1,6 +1,6 @@
 # Rapporti, riferimenti e attestazione dell'attività
 
-Versione 0.5.5-beta — verifica delle fonti: 16 ottobre 2026.
+Versione 0.5.7-beta — verifica delle fonti: 16 ottobre 2026.
 
 ## Che cosa rilascia il programma
 
@@ -56,3 +56,7 @@ Prima di presentare questo servizio come prestazione con specifiche garanzie con
 - NIST SP 800-88 Rev. 2: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-88r2.pdf
 - eIDAS, Regolamento (UE) 910/2014, come modificato: https://eur-lex.europa.eu/eli/reg/2014/910/oj/ita
 - Firma e data qualificata, AgID: https://www.agid.gov.it/it/piattaforme/firma-elettronica-qualificata
+
+## Esito separato della rimozione USB (0.5.7)
+
+I rapporti del lotto HTML/JSON possono includere la sezione `safe_removal`. Registra i dischi interessati, il dispositivo USB, l’esito della richiesta a Windows, il messaggio e, quando disponibili, il codice nativo e il motivo di veto. “Rimozione non confermata” non trasforma una cancellazione riuscita in una cancellazione fallita; i due esiti vanno letti separatamente. I registri progressivi del singolo disco restano dedicati all’attività di cancellazione. La rimozione non è una prova aggiuntiva di sanitizzazione, non spegne la docking e non certifica lo stato del disco.

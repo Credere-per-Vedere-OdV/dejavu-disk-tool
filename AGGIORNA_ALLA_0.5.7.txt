@@ -1,0 +1,69 @@
+DEJAVU DISK TOOL 0.5.7-beta - RIMOZIONE SICURA AUTOMATICA USB
+
+Questa e' la nuova versione completa: include tutte le correzioni della
+0.5.6 e precedenti. La 0.5.6 resta priva della nuova espulsione automatica.
+I comandi che cancellano HDD e SSD sono invariati.
+
+A fine lotto, dopo che tutti i lavori sono terminati e i rapporti sono
+salvati, il programma chiede a Windows la rimozione sicura delle docking
+USB supportate. Tutti i dischi della stessa unita' USB devono essere
+riconosciuti, selezionati e completati senza avvisi. Se un disco manca,
+e' cambiato, e' protetto o Windows rifiuta, non viene forzata la rimozione.
+L'esito USB e' distinto dall'esito della cancellazione, nella GUI e nel
+rapporto HTML/JSON. L'espulsione non spegne l'alimentatore della docking.
+I dischi SATA interni non vengono espulsi.
+
+QUESTO ZIP CONTIENE SORGENTI, NON UN ESEGUIBILE WINDOWS GIA' PRONTO.
+
+SUL SOLITO PC DI COMPILAZIONE, QUELLO CON PYTHON
+
+1. Lascia terminare eventuali cancellazioni e chiudi il programma.
+2. Estrai questo ZIP. Copia il contenuto di Dejavu_DiskTool nella solita
+   cartella dei sorgenti, quella con Crea_EXE.cmd. Unisci e sostituisci.
+   Conserva la chiave di rilascio originale nel profilo Windows.
+3. Esegui Crea_EXE.cmd. La versione generata deve essere 0.5.7-beta.
+4. Dalla cartella release prendi il nuovo file:
+   DejavuDiskTool-Installazione-Windows-x64.zip
+
+SUL PC CON LA DOCKING, ANCHE SENZA PYTHON
+
+5. Copia lo ZIP di installazione appena generato. Estrailo interamente
+   in una cartella nuova e scrivibile sul disco Windows.
+6. Apri AvviaDejavu.exe. In basso deve esserci 0.5.7-beta.
+7. Prova prima Prova_interfaccia.cmd dalla cartella compilata: usa solo
+   file di prova. La rimozione USB deve essere indicata SIMULAZIONE.
+8. Prima della pubblicazione, collauda un lotto reale autorizzato su
+   unita' di prova prive di dati da conservare, nella docking interessata.
+   Attendi cancellazione, verifica e controlli finali. Il programma deve
+   dire se Windows ha espulso la docking oppure perche' non ha potuto.
+   Il test automatico su Linux non prova il comportamento del driver USB.
+9. Dopo la conferma di espulsione, spegni la docking e attendi l'arresto
+   degli HDD. Sostituisci i dischi, riaccendi e premi Rileva dischi.
+
+Se una docking contiene anche un disco NON scelto, non deve essere
+espulsa automaticamente. Verificare questo caso con unita' di prova.
+Gli hub, i controller USB e i dischi interni non devono essere rimossi.
+La richiesta Windows si esegue in un processo separato con un limite
+complessivo di 90 secondi; un timeout non viene dichiarato un successo.
+In quel caso controllare manualmente prima di scollegare.
+
+Non inserire, estrarre o spostare dischi durante il lavoro e i controlli
+finali. Non cambiare la versione mentre un lotto e' in corso.
+
+GITHUB
+
+Carica i sorgenti dalla copia pulita di questo ZIP. Escludi build,
+release, ambienti Python, rapporti, diagnostiche e chiavi private.
+Dopo il collaudo prepara una nuova Release v0.5.7-beta sul commit dei
+sorgenti corrispondenti. Allega dalla stessa compilazione in release:
+  DejavuDiskTool-Installazione-Windows-x64.zip
+  DejavuDiskTool-Windows-x64.zip
+  aggiornamento.json
+  aggiornamento.sig
+Il JSON deve riportare 0.5.7-beta. La firma viene generata sul tuo PC,
+non si trova in questo ZIP. Non sostituire gli allegati delle vecchie
+release. La pubblicazione distribuisce l'aggiornamento ai client beta;
+una bozza non lo distribuisce. Avviatore e protocollo non cambiano.
+
+Il caso dell'SSD Samsung non piu' rilevato resta separato: questa funzione
+non lo ripara e non ne stabilisce la causa. Seguire VALIDAZIONE.md.

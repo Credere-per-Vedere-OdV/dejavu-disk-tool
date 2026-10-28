@@ -67,6 +67,20 @@ class ReportFrameworkTests(unittest.TestCase):
         self.assertFalse(payload['documentation']['purge_certified'])
         self.assertIn('ESITO DEL DISPOSITIVO CONFERMATO', html.read_text())
 
+    def test_removal_failure_is_escaped_and_hashed_separately_from_successful_erasure(self):
+        result = JobResult(self.disk, 'SUCCESS', 'Erased')
+        removal = [{"disk_numbers": [1], "status": "NOT_CONFIRMED", "message": "<Windows veto>",
+                    "device_id": "TEST", "finished_at": "2026-10-27T14:00:00+00:00"}]
+        html, data = save_reports(self.root, Inventory((self.disk,), True, simulated=True),
+                                  [result], 1, safe_removal=removal)
+        payload, text = json.loads(data.read_text()), html.read_text()
+        self.assertEqual(payload['results'][0]['status'], 'SUCCESS')
+        self.assertEqual(payload['safe_removal'], removal)
+        self.assertIn('RIMOZIONE NON CONFERMATA', text)
+        self.assertNotIn('<Windows veto>', text)
+        self.assertIn('&lt;Windows veto&gt;', text)
+        self.assertIn(hashlib.sha256(data.read_bytes()).hexdigest(), text)
+
     def test_complete_batch_and_progressive_record_have_the_same_traceable_identifier(self):
         disk = self.disk
         file = self.root / 'only-owned-simulation.bin'

@@ -70,6 +70,38 @@ def run_batch(disks, inventory, backend, cancel: Event, emit, report_folder: Pat
         report_error = f"Gli esiti sono visibili, ma il rapporto non è stato salvato: {error}"
     if record_errors:
         report_error += ("\n" if report_error else "") + "Registri delle singole unità non salvati: " + " | ".join(record_errors)
+
+    # All futures have joined and all sessions have closed. Save the erasure
+    # evidence BEFORE attempting any USB safe removal. Erasure outcomes are
+    # immutable here; removal has its own independent outcome in the report.
+    removal_results = []
+    usb_numbers = [result.disk.number for result in results if result.disk.bus == "USB"]
+    if usb_numbers:
+        from .usb_removal import outcome
+        emit({"type": "finalizing", "message": "Cancellazioni terminate. Controllo della rimozione sicura USB…"})
+        if report_error or not paths:
+            removal_results = [outcome(usb_numbers, "SKIPPED", "Rapporti non completamente salvati: rimozione automatica esclusa.")]
+        elif cancel.is_set():
+            removal_results = [outcome(usb_numbers, "SKIPPED", "Lotto interrotto: rimozione automatica esclusa.")]
+        elif inventory.simulated:
+            removal_results = [outcome(usb_numbers, "SIMULATED", "Simulazione: nessuna docking fisica è stata espulsa.")]
+        else:
+            try:
+                remove = getattr(backend, "remove_completed", None)
+                if not callable(remove):
+                    removal_results = [outcome(usb_numbers, "SKIPPED", "Rimozione automatica USB non disponibile in questo ambiente.")]
+                else:
+                    with KeepAwake(False):
+                        removal_results = remove(results, cancel)
+            except Exception as error:
+                removal_results = [outcome(usb_numbers, "NOT_CONFIRMED", "Rimozione USB non confermata: " + str(error))]
+        if paths:
+            try:
+                paths = save_reports(report_folder, inventory, results, concurrency,
+                                     batch_id=batch_id, safe_removal=removal_results)
+            except Exception as error:
+                report_error += ("\n" if report_error else "") + "Esito della rimozione USB non salvato nel rapporto: " + str(error)
     emit({"type": "batch_done", "results": results, "reports": paths,
-          "report_error": report_error, "disk_records": tuple(disk_records), "batch_id": batch_id})
+          "report_error": report_error, "disk_records": tuple(disk_records), "batch_id": batch_id,
+          "removal_results": removal_results})
     return results, paths

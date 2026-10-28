@@ -1,3 +1,3 @@
 """Dejavu DiskTool: Windows HDD clear and readback verification."""
 
-__version__ = "0.5.5-beta"
+__version__ = "0.5.7-beta"

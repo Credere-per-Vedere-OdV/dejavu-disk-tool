@@ -24,6 +24,7 @@ GREEN = "#146138"
 RED = "#a03025"
 AMBER = "#825800"
 FONT = "Segoe UI" if os.name == "nt" else "Helvetica"
+MAX_UNAVAILABLE_SCANS = 3
 
 
 class DiskRow:
@@ -125,7 +126,10 @@ class Application:
         self.rows = {}
         self.busy = self.scanning = self.confirming = False
         self.background_scan = False
+        self.unavailable_scan_count = 0
+        self.automatic_scan_paused = False
         self.have_results = False
+        self.finalizing = False
         self.closing = False
         self.reports = None
         root.title("Dejavu · Cancellazione dischi" + (" · SIMULAZIONE" if demo else ""))
@@ -206,7 +210,7 @@ class Application:
         self.list_frame.bind("<Configure>", lambda event: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
         self.canvas.bind("<Configure>", lambda event: self.canvas.itemconfigure(self.list_window, width=event.width))
         self.root.bind("<MouseWheel>", lambda event: self.canvas.yview_scroll(int(-event.delta / 120), "units"))
-        policy_hint = tk.Label(body, text="Procedura automatica: HDD con verifica integrale; SSD SATA con cancellazione nativa. Unità in uso protette.",
+        policy_hint = tk.Label(body, text="HDD con verifica integrale; SSD SATA con cancellazione nativa. Unità in uso protette. Rimozione sicura USB a fine lotto, se consentita.",
                               bg=BG, fg=MUTED, font=(FONT, 10), anchor="w", justify="left", wraplength=1080)
         policy_hint.pack(side="bottom", fill="x", pady=(10, 0), before=area)
         body.bind("<Configure>", lambda event: (policy_hint.configure(wraplength=max(240, event.width - 48)),
@@ -266,27 +270,32 @@ class Application:
 
     def _controls(self):
         active = not (self.busy or self.scanning or self.confirming)
+        protection_ok = self.inventory.protection_ok and not self.inventory.error
         # A background refresh must not interrupt selection. Starting still
         # waits for the fresh inventory and its protection/identity checks.
         selectable = not (self.busy or self.confirming or self.have_results
                           or (self.scanning and not self.background_scan))
-        self.start_button.configure(state="normal" if active and selectable and self.inventory.protection_ok and self.selected() else "disabled")
+        self.start_button.configure(state="normal" if active and selectable and protection_ok and self.selected() else "disabled")
         self.refresh.configure(state="normal" if active else "disabled")
         eligible = self.eligible_rows()
         all_selected = bool(eligible) and all(row.selected.get() for row in eligible)
         self.select_lot.configure(state="normal" if selectable and eligible else "disabled",
                                   text="Annulla selezione" if all_selected else "Seleziona lotto")
         for row in self.rows.values():
-            row.set_enabled(selectable, self.inventory.protection_ok)
+            row.set_enabled(selectable, protection_ok)
 
     def scan(self, manual=False, background=False):
         if self.busy or self.scanning or self.confirming or self.closing:
+            return
+        if self.automatic_scan_paused and not manual:
             return
         # Preserve completed outcomes until the operator requests a new list.
         if self.have_results and not manual:
             return
         if manual:
             self.have_results = False
+            self.unavailable_scan_count = 0
+            self.automatic_scan_paused = False
         self.scanning = True
         self.background_scan = background and bool(self.rows) and not manual
         self.connection.configure(text=(
@@ -303,7 +312,7 @@ class Application:
         Thread(target=work, name="dejavu-inventory", daemon=True).start()
 
     def _automatic_scan(self):
-        if not self.selected():
+        if not self.automatic_scan_paused and not self.selected():
             self.scan(background=True)
         if not self.closing:
             self.root.after(15000, self._automatic_scan)
@@ -323,6 +332,10 @@ class Application:
         self.inventory = inventory
         self.scanning = False
         self.background_scan = False
+        protection_ok = inventory.protection_ok and not inventory.error
+        has_targets = protection_ok and any(not disk.protected for disk in inventory.disks)
+        self.unavailable_scan_count = 0 if has_targets else self.unavailable_scan_count + 1
+        self.automatic_scan_paused = self.unavailable_scan_count >= MAX_UNAVAILABLE_SCANS
         if not unchanged:
             for disk in inventory.disks:
                 row = DiskRow(self.list_frame, disk, self.selection_changed, inventory.protection_ok)
@@ -335,12 +348,28 @@ class Application:
                 except Blocked:
                     selected = False
             row.selected.set(selected)
-        if inventory.protection_ok:
+        if has_targets:
             protected = sum(disk.protected for disk in inventory.disks)
             self.connection.configure(text=f"{len(inventory.disks)} dischi rilevati · {protected} protetti · "
                                       "USB e SATA rilevati automaticamente. Controlla modello e numero di serie.", fg=MUTED)
+        elif protection_ok:
+            if self.automatic_scan_paused:
+                text = (f"Nessun disco da cancellare rilevato dopo {MAX_UNAVAILABLE_SCANS} controlli. "
+                        "Ricerca automatica sospesa. Verifica alimentazione e collegamenti, "
+                        "poi premi 'Rileva dischi' per riprovare.")
+            else:
+                text = ("Rilevate solo unità protette. Nessun disco da cancellare. "
+                        f"Controllo {self.unavailable_scan_count}/{MAX_UNAVAILABLE_SCANS}: "
+                        "verifica alimentazione e collegamenti.")
+            self.connection.configure(text=text, fg=AMBER)
         else:
-            self.connection.configure(text="Cancellazione bloccata: " + (inventory.error or "protezione del sistema non confermata"), fg=RED)
+            text = "Cancellazione bloccata: " + (inventory.error or "protezione del sistema non confermata")
+            if self.automatic_scan_paused:
+                text += (f" Ricerca automatica sospesa dopo {MAX_UNAVAILABLE_SCANS} controlli. "
+                         "Premi 'Rileva dischi' per riprovare.")
+            else:
+                text += f" Controllo {self.unavailable_scan_count}/{MAX_UNAVAILABLE_SCANS}."
+            self.connection.configure(text=text, fg=RED)
         self.selection_changed()
 
     def confirm(self, disks):
@@ -369,7 +398,9 @@ class Application:
         heading.grid(row=0, column=0, sticky="ew", padx=22, pady=(20, 12))
         instruction_text = "Controlla il numero di serie sull'etichetta di ogni disco."
         if not self.demo:
-            instruction_text += "\nChiudi Esplora file e i programmi che usano i dischi da cancellare."
+            instruction_text += ("\nChiudi Esplora file e i programmi che usano i dischi da cancellare."
+                                 "\nA fine lotto verrà tentata la rimozione sicura delle docking USB."
+                                 " Non aggiungere o spostare dischi durante il lavoro.")
         instruction = tk.Label(window, text=instruction_text,
                                bg="white", fg=INK, font=(FONT, 11),
                                anchor="w", justify="left", wraplength=width - 44)
@@ -432,13 +463,14 @@ class Application:
             self._controls()
             return
         self.busy = True
+        self.finalizing = False
         self.have_results = False
         self.reports = None
         self.cancel.clear()
         self.summary.configure(text="Cancellazione in corso…", fg=TEAL)
         self.open_button.configure(state="disabled")
         self.stop_button.configure(state="normal")
-        self.connection.configure(text="Lascia collegati e alimentati i dischi fino al termine della verifica.", fg=TEAL)
+        self.connection.configure(text="Lascia collegati e alimentati i dischi fino all'esito finale, compresi i controlli di rimozione USB.", fg=TEAL)
         for disk in disks:
             row = self.rows[disk.number]
             row.progress["value"] = 0
@@ -450,6 +482,8 @@ class Application:
                name="dejavu-batch", daemon=False).start()
 
     def stop(self):
+        if self.finalizing:
+            return
         if self.busy and messagebox.askyesno("Interrompere il lavoro?",
                 "Le operazioni incomplete saranno indicate come INTERROTTE.\n"
                 "Le cancellazioni native SSD già avviate vengono seguite fino al termine.\n"
@@ -476,6 +510,11 @@ class Application:
                             row.finish(event["result"])
                 elif kind == "batch_done":
                     self.batch_done(event)
+                elif kind == "finalizing":
+                    self.finalizing = True
+                    self.stop_button.configure(state="disabled")
+                    self.summary.configure(text="Controlli finali…", fg=TEAL)
+                    self.connection.configure(text=event["message"], fg=TEAL)
         except Empty:
             pass
         if not self.closing:
@@ -483,6 +522,7 @@ class Application:
 
     def batch_done(self, event):
         self.busy = False
+        self.finalizing = False
         self.have_results = True
         self.reports = event["reports"]
         self.stop_button.configure(state="disabled")
@@ -491,9 +531,28 @@ class Application:
         text = (f"{counts['SUCCESS']} completati · {counts['FAILED']} non confermati\n"
                 f"{counts['BLOCKED']} non cancellati · {counts['CANCELLED']} interrotti")
         all_clean = all(result.status == "SUCCESS" and not result.warnings for result in event["results"])
-        self.summary.configure(text=text, fg=GREEN if all_clean else AMBER)
-        self.connection.configure(text=event["report_error"] or "Lavoro terminato. Apri il rapporto per i dettagli; ‘Rileva dischi’ prepara il prossimo gruppo.",
-                                  fg=RED if event["report_error"] else MUTED)
+        removal = event.get("removal_results", [])
+        removal_warning = any(item["status"] not in ("EJECTED", "SIMULATED") for item in removal)
+        self.summary.configure(text=text, fg=GREEN if all_clean and not removal_warning else AMBER)
+        if removal:
+            for item in removal:
+                for number in item["disk_numbers"]:
+                    row = self.rows.get(number)
+                    if row:
+                        row.detail.configure(text=row.detail.cget("text") + " " + item["message"])
+            ejected = sum(item["status"] == "EJECTED" for item in removal)
+            if self.demo:
+                completion = "Simulazione terminata: nessuna docking fisica espulsa. Apri il rapporto per gli esiti."
+            elif removal_warning:
+                completion = (f"Docking espulse: {ejected}. Rimozione USB da controllare: leggi gli avvisi sui dischi e nel rapporto. "
+                              "L'esito della cancellazione è indicato separatamente.")
+            else:
+                completion = (f"Docking espulse: {ejected}. Puoi spegnerle e sostituire i dischi. "
+                              "Poi riaccendile e premi ‘Rileva dischi’.")
+        else:
+            completion = "Lavoro terminato. Apri il rapporto per i dettagli; ‘Rileva dischi’ prepara il prossimo gruppo."
+        self.connection.configure(text=event["report_error"] or completion,
+                                  fg=RED if event["report_error"] else AMBER if removal_warning else MUTED)
         # Every subsequent batch requires a fresh scan and a new selection.
         for row in self.rows.values():
             row.selected.set(False)
@@ -511,6 +570,9 @@ class Application:
 
     def close(self):
         if self.busy:
+            if self.finalizing:
+                self.connection.configure(text="Attendi l'esito dei controlli finali prima di chiudere o scollegare la docking.", fg=TEAL)
+                return
             self.stop()
             return
         self.closing = True

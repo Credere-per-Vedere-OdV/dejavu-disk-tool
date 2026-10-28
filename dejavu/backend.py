@@ -22,3 +22,8 @@ class WindowsBackend:
             from .ssd import SsdSession
             return SsdSession(disk, self.recovery_folder)
         return RawSession(disk)
+
+    def remove_completed(self, results, cancel):
+        from .usb_removal import remove_completed
+        return remove_completed(results, self.inventory.app_path,
+                                self.inventory.report_path, cancel)

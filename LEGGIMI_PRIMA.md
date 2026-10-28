@@ -1,6 +1,6 @@
 # Dejavu DiskTool — beta Windows
 
-Versione 0.5.5-beta · 27 ottobre 2026
+Versione 0.5.7-beta · 27 ottobre 2026
 
 Per Credere per Vedere OdV e il Progetto Dejavu — Laboratorio di Riciclo e Terapia Occupazionale. Una sola procedura: collegare i dischi, selezionare quelli da cancellare, confermare e leggere l'esito di ciascuno. Non occorre indicare quante docking sono collegate. Il progetto deriva dall'analisi del DFTool di Alessio, con un motore Windows separato.
 
@@ -8,7 +8,7 @@ La 0.5.0 migliora la resa dei loghi originali con ridimensionamento Lanczos e im
 
 La **0.5.1** integra nei rapporti HTML e nei JSON i riferimenti di contesto GDPR/Garante e quelli documentali NIST SP 800-88 Rev. 2. Aggiunge identificativi collegati tra lotto e registri per unità, impronta SHA-256 del JSON sulla stampa e campi manuali per affidante, incarico, operatore, firma e validazione del responsabile. Il software non appone firme qualificate e non certifica automaticamente conformità normativa o livello Purge. Vedere `RAPPORTI_E_RIFERIMENTI.md`.
 
-La **0.5.2** rende più leggibile la parte da compilare a mano: due schede A4 dedicate, etichette da 18 punti, spazi a tutta larghezza e righe da 12 mm. Ogni scheda riporta l'identificativo del rapporto e le simulazioni sono indicate anche sulle schede. La compilazione resta manuale e separata dai dati JSON. È inclusa la correzione del test ZIP per Windows. Per ricreare l'EXE seguire `AGGIORNA_ALLA_0.5.5.txt`.
+La **0.5.2** rende più leggibile la parte da compilare a mano: due schede A4 dedicate, etichette da 18 punti, spazi a tutta larghezza e righe da 12 mm. Ogni scheda riporta l'identificativo del rapporto e le simulazioni sono indicate anche sulle schede. La compilazione resta manuale e separata dai dati JSON. È inclusa la correzione del test ZIP per Windows. Per ricreare l'EXE seguire `AGGIORNA_ALLA_0.5.7.txt`.
 
 La **0.5.3** corregge il confezionamento dell'avviatore: include esplicitamente le DLL Stable ABI corrette dell'interprete usato per compilare, compresa `python3t.dll` richiesta da cryptography su Python 3.15. Prima di firmare i pacchetti verifica staticamente che le estensioni non richiedano DLL Python assenti. La 0.5.2 pubblicata poteva funzionare sul PC di compilazione ma non su un PC senza Python. Per un avviatore 0.5.2 che non parte occorre prima applicare la correzione manuale della DLL oppure installare il nuovo pacchetto completo: un avviatore che non parte non può aggiornarsi da solo.
 
@@ -19,6 +19,12 @@ La **0.5.4** corregge il riconoscimento dietro un generico “SATA Bridge”: mo
 La **0.5.5** mantiene utilizzabili le caselle e Seleziona lotto durante il rilevamento automatico ogni 15 secondi. Non ricrea le righe quando i dati sono invariati. L'avvio resta disabilitato finché il controllo non termina; una selezione effettuata nel frattempo è conservata soltanto se il disco mantiene la propria identità e supera i controlli. Il rilevamento iniziale e quello richiesto con Rileva dischi continuano a bloccare temporaneamente la selezione. Gli esiti di un lotto concluso restano visibili fino al rilevamento manuale.
 
 **SSD in verifica:** il responsabile ha riferito due esiti nativi positivi nella 0.5.4 e la successiva mancata rilevazione di uno dei due SSD Samsung. La causa non è ancora accertata. La 0.5.5 corregge soltanto la gestione dell'interfaccia; sulla configurazione interessata mantenere sospese le cancellazioni SSD e continuare con i soli controlli di rilevamento.
+
+La **0.5.6** sospende la ricerca automatica dopo tre rilevamenti consecutivi conclusi con errori o senza dischi non protetti. Il messaggio indica di verificare alimentazione e collegamenti e premere **Rileva dischi** per riprovare. Un disco non protetto rilevato azzera il conteggio. Dopo la pausa, il collegamento di un disco richiede un nuovo clic su Rileva dischi. Il limite riguarda i controlli conclusi e non forza l’interruzione di chiamate già in attesa del driver. Nessuna modifica ai comandi di cancellazione.
+
+La **0.5.7** aggiunge la rimozione sicura automatica delle docking USB supportate al termine del lotto, dopo la chiusura di tutte le sessioni e il salvataggio dei rapporti. L’identità dei dischi e la protezione delle unità in uso sono ricontrollate. Viene rimosso soltanto il dispositivo USB di archiviazione: mai un hub o un controller host. Tutti i dischi presenti nel suo ramo PnP devono appartenere al lotto e avere esito positivo senza avvisi; un disco non selezionato, assente, cambiato o protetto impedisce la rimozione. Windows può comunque rifiutarla: non vengono usati scollegamenti forzati o tentativi ripetuti. GUI e rapporto distinguono esito di cancellazione ed esito USB. La funzione è da collaudare su Windows e sulla docking effettiva; non è già stata provata su hardware in questo ambiente.
+
+La fase finale USB usa un processo separato con un limite complessivo di 90 secondi. Un timeout rimane “Rimozione non confermata”; eventuali espulsioni già confermate sono conservate. Durante il lotto e i controlli finali non spostare i dischi. La rimozione logica non spegne l’alimentatore: dopo la conferma spegnere la docking, attendere l’arresto degli HDD, sostituire i dischi e riaccendere. I dischi SATA interni restano collegati e si sostituiscono a PC spento. Le docking che non espongono un ramo USB di archiviazione rimovibile riconoscibile richiedono la procedura manuale. I comandi HDD/SSD sono invariati.
 
 **Stato:** sorgenti, GUI italiana, simulazione, test e script per creare l'EXE su Windows. I test usano file temporanei e API simulate. I comandi SSD, la docking, i driver Windows e l'EXE richiedono un collaudo specifico su hardware reale. Questa beta non costituisce una certificazione Purge per banche o altri donatori.
 
@@ -111,7 +117,7 @@ Il programma per i colleghi è **`release\DejavuDiskTool\AvviaDejavu.exe`**. Dis
 
 Il controllo avviene prima dell'apertura e dell'elevazione: firma Ed25519, SHA-256 e verifica della struttura ZIP, preparazione in una cartella nuova, attivazione atomica. Senza rete o dopo un aggiornamento rifiutato resta utilizzabile la versione installata. Durante la cancellazione non avvengono aggiornamenti. Rapporti e impostazioni della postazione vengono conservati. L'avviatore si aggiorna manualmente se necessario; gli aggiornamenti automatici riguardano il programma e le sue librerie.
 
-La destinazione configurata è `Credere-per-Vedere-OdV/dejavu-disk-tool`: il repository pubblico e la Release 0.5.3-beta sono stati verificati il 24 ottobre 2026. Questa fornitura contiene i sorgenti 0.5.5 da compilare su Windows; non pubblica automaticamente una release. Le postazioni con avviatore 0.5.3 o 0.5.4 funzionante possono ricevere l'app corretta tramite aggiornamento automatico dopo la pubblicazione. Prima della distribuzione operativa chiarire il problema SSD descritto sopra. La guida **`AGGIORNAMENTI_GITHUB.md`** contiene i passaggi e i quattro allegati da pubblicare per ogni release.
+La destinazione configurata è `Credere-per-Vedere-OdV/dejavu-disk-tool`: il repository pubblico e la Release 0.5.3-beta sono stati verificati il 24 ottobre 2026. Questa fornitura contiene i sorgenti 0.5.7 da compilare su Windows; non pubblica automaticamente una release. Le postazioni con avviatore 0.5.3 o 0.5.4 funzionante possono ricevere l'app corretta tramite aggiornamento automatico dopo la pubblicazione. Prima della distribuzione operativa chiarire il problema SSD descritto sopra. La guida **`AGGIORNAMENTI_GITHUB.md`** contiene i passaggi e i quattro allegati da pubblicare per ogni release.
 
 ## Riferimenti e sviluppo
 

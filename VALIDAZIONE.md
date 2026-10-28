@@ -1,11 +1,11 @@
-# Validazione della beta 0.5.5
+# Validazione della beta 0.5.7
 
 27 ottobre 2026 — Linux, Python 3.12 a 64 bit. Nessun Windows nativo disponibile e nessun disco reale aperto.
 
 ## Eseguito
 
 - Compilazione sintattica dei sorgenti.
-- 142 test unittest superati: 95 test per il motore e i registri, 27 per gli aggiornamenti firmati, 5 per la tracciabilità e i limiti documentali dei rapporti, 5 per le dipendenze Windows del pacchetto e 10 per la selezione durante il rilevamento.
+- 186 test unittest superati: 95 per motore e registri precedenti, 27 per gli aggiornamenti firmati, 6 per i rapporti, 5 per le dipendenze Windows, 19 per la GUI, 27 per identità/topologia/veto USB e 7 per l’ordine fra cancellazione, salvataggio ed espulsione.
 - Simulazione completa: due HDD riusciti, uno SSD riuscito, un errore HDD di lettura; rapporti HTML e JSON salvati e marcati SIMULAZIONE.
 - Verifica reale della GUI in un display virtuale Linux: due loghi corretti, selezione e protezione del sistema, progressione SSD, pulsanti di avvio e conferma visibili con finestra 900×600. Il collaudo DPI e Windows resta necessario.
 - Loghi originali preservati byte per byte; caricamento PNG completo con Pillow e ridimensionamento Lanczos al posto del sottocampionamento Tk. Logo CpV a 120 pixel alla densità base, con raster adattato al display.
@@ -18,7 +18,7 @@ I test esistenti coprono capacità e ultimo blocco, settori 512/4096, scrittura/
 
 I nuovi test verificano capacità SSD e parole IDENTIFY non valide, sicurezza ATA, firme/registri a 48 bit, CDB SAT-16 e direzione dati, risposte incomplete/errori, metodi mancanti e NVMe escluso, protezioni, seriale cambiato, stato Sanitize prima di avviare, congelamento e lavoro già in corso, vecchio successo non riutilizzato dopo un comando rifiutato, annullamento dopo l'avvio seguito fino al completamento, sequenza password/prepare/enhanced erase, DPAPI fallita prima di impostare la password, registro cifrato conservato su errore, rapporti SSD con conteggi nulli e recupero senza erase né attestazione di cancellazione.
 
-Questi risultati dimostrano il comportamento nei casi simulati. Non verificano firmware, passaggio dei comandi attraverso docking/driver, DPAPI reale o cancellazione fisica della memoria NAND. L'EXE 0.5.5 non è stato costruito o collaudato su Windows nell'ambiente automatico di sviluppo. Non è una certificazione NIST/Purge.
+Questi risultati dimostrano il comportamento nei casi simulati. Non verificano firmware, passaggio dei comandi attraverso docking/driver, DPAPI reale o cancellazione fisica della memoria NAND. L'EXE 0.5.7 non è stato costruito o collaudato su Windows nell'ambiente automatico di sviluppo. Non è una certificazione NIST/Purge.
 
 ## Aggiornamenti firmati: prove eseguite
 
@@ -78,6 +78,34 @@ La verifica è stata ripetuta con Tk reale su display virtuale Linux, mettendo i
 
 Algoritmi e comandi HDD/SSD, identificazione nativa, avviatore, protocollo degli aggiornamenti e loghi sono invariati rispetto alla 0.5.4.
 
+## Tentativi di rilevamento: correzione 0.5.6
+
+La diagnostica del 27 ottobre sui due HDD mostra soltanto l'unità di sistema sia nell'inventario Get-Disk sia in Win32_DiskDrive, senza errori del rilevamento principale e con raccolta PnP completata. Non permette di attribuire l'assenza degli HDD alla precedente cancellazione con DFTools. La GUI ripeteva il controllo ogni 15 secondi anche quando Windows non mostrava altri dischi.
+
+La ricerca automatica ora si sospende dopo tre rilevamenti consecutivi conclusi con errori o senza unità non protette. Rileva dischi azzera il conteggio e avvia una nuova serie limitata; un rilevamento valido con unità non protette azzera il conteggio. Si contano i controlli conclusi: non viene forzata l'interruzione di richieste già in attesa di Windows o del driver. Il limite non rende visibile un dispositivo assente dagli elenchi Windows e non avvia cancellazioni.
+
+Sette regressioni verificano: pausa dopo tre risultati con il solo sistema e assenza di nuove scansioni ai successivi tick; pausa dopo errori; ripresa manuale con nuove unità non selezionate; azzeramento del conteggio dopo un rilevamento valido; nuovo limite dopo una ripresa manuale ancora senza unità; protezione non confermata anche con dischi visibili; errore dell'inventario che mantiene disabilitate selezione e avvio anche con il flag di protezione impostato. Il caso del solo sistema è stato eseguito anche sul codice 0.5.5 e riproduce il quarto tentativo che la correzione impedisce.
+
+Con Tk reale su display virtuale Linux è stato verificato il messaggio di pausa dopo tre controlli, il pulsante Rileva dischi disponibile, l'assenza di nuovi rilevamenti automatici e la ripresa manuale con unità riconosciute ma senza spunta. Restano verificati i controlli grafici della 0.5.5. Algoritmi HDD/SSD, inventario Windows e comandi nativi sono invariati rispetto alla 0.5.5. Nessun disco fisico è stato aperto.
+
+## Rimozione sicura automatica USB: 0.5.7
+
+La nuova funzione viene eseguita soltanto dopo il termine di tutti i worker, la chiusura di tutte le sessioni e il salvataggio dei registri e dei rapporti. Non cambia i comandi di cancellazione HDD/SSD. Un inventario completo e protetto viene ricostruito nel processo ausiliario, insieme all’associazione Win32_DiskDrive/PnP. Il target deve essere un nodo USB VID/PID con servizio USBSTOR/UASPSTOR e capacità rimovibile, distinto da hub e controller. Sono contati tutti i figli disco del ramo nativo, compresi quelli non presenti in Get-Disk. Sono richiesti tutti i dischi del ramo nel lotto, identità firmware coerenti, esito positivo e assenza di avvisi. Un dispositivo composto o non riconosciuto viene lasciato collegato.
+
+La sola operazione che cambia stato è CM_Request_Device_EjectW, una volta per dispositivo. I veto di Windows restano rispettati; nessuna chiamata force-remove, disable o eject-media è usata come ripiego. La fase USB intera è limitata a 90 secondi nel processo ausiliario; il processo principale rimane reattivo. Un timeout non prova l’assenza di un’operazione PnP già in corso: l’esito rimane non confermato e richiede controllo manuale. Le espulsioni già confermate dal processo sono conservate progressivamente. Non sono impartiti comandi di spegnimento della docking o dei SATA interni.
+
+Le 27 prove USB usano identificativi sintetici con due LUN Sabrent e seriale bridge composto da zeri, nodi PnP simulati e risposte native simulate. Coprono dischi non scelti, protetti, mancanti, cambiati, duplicati, figli non censiti, inventari discordi, più docking, SATA escluso, hub/controller/funzioni composte escluse, veto, ramo cambiato, proprietà UTF-16/REG_DWORD, firme ctypes, processo sorgente/congelato, timeout con risultati parziali e percorso interno senza mutex o GUI. Sette prove del lotto verificano con veri file temporanei che il secondo worker sia concluso e i rapporti esistano prima dell’espulsione, oltre a errori di salvataggio, annullamento, simulazione, SATA e insuccesso PnP. Due prove GUI e una prova rapporto distinguono cancellazione e rimozione e preservano i dati tecnici.
+
+La GUI è stata eseguita con Tk reale su display virtuale Linux: completato un lotto di soli file temporanei con due HDD e uno SSD riusciti e un errore HDD atteso, rapporto HTML/JSON e rimozione marcata SIMULAZIONE. Verificati anche il messaggio di espulsione confermata e quello di rifiuto mediante risposte sintetiche consegnate al gestore Tk, con pulsante Apri rapporto visibile a 900×600. Le conferme, la selezione stabile e la pausa dopo tre rilevamenti restano funzionanti. Non è stata eseguita alcuna API PnP Windows o espulsione fisica.
+
+Fonti primarie consultate il 27 ottobre 2026:
+- Microsoft, CM_Request_Device_EjectW: https://learn.microsoft.com/en-us/windows/win32/api/cfgmgr32/nf-cfgmgr32-cm_request_device_ejectw
+- Microsoft, capacità rimovibile: https://learn.microsoft.com/en-us/windows-hardware/drivers/install/overview-of-the-removable-device-capability
+- Microsoft, PNP_VETO_TYPE: https://learn.microsoft.com/en-us/windows/win32/api/cfg/ne-cfg-pnp_veto_type
+- Header Microsoft WinSDK cfgmgr32.h nel repository microsoft/win32metadata: verificati i valori delle proprietà, delle capacità e dei codici CR.
+
+Prima della distribuzione collaudare sul PC Windows e sulla docking reale: due dischi autorizzati completati, una seconda unità non selezionata che impedisce l’espulsione dello stesso dispositivo, più docking e un eventuale rifiuto Windows. Verificare che dopo l’espulsione/spegnimento si possano sostituire i dischi, riaccendere e rilevare il nuovo gruppo. Una cancellazione riuscita nella vecchia versione non collauda la nuova richiesta PnP.
+
 ## Riscontro hardware ancora da chiarire
 
 Il responsabile ha fornito un rapporto 0.5.4 con esito nativo positivo per due SSD Samsung e ha successivamente segnalato la mancata rilevazione di uno di essi. Le nuove diagnostiche mostrano il Samsung rimasto rilevabile; il responsabile riferisce anche il riconoscimento di un Kingston nuovo. Questi dati non stabiliscono la causa della scomparsa del primo SSD né dimostrano l'efficacia fisica della cancellazione. La correzione 0.5.5 riguarda la selezione grafica e non risolve il problema del disco mancante. Sospendere le cancellazioni SSD sulla configurazione interessata e verificare il disco con un collegamento indipendente prima della distribuzione operativa.
@@ -90,6 +118,7 @@ Il responsabile tecnico usa unità prive di dati da conservare. Iniziare con un 
 | --- | --- |
 | GUI e simulazione | Due loghi, pulsanti di avvio e conferma visibili, lista scorrevole; esiti attesi. Provare DPI 125%, 150%, 200%. |
 | Selezione e controllo periodico | Senza selezioni attendere almeno un minuto: caselle e Seleziona lotto restano azionabili durante gli aggiornamenti automatici. Selezionare durante un controllo e verificare che la spunta resti; avvio bloccato fino al risultato. Sistema sempre protetto. Nessuna cancellazione necessaria per questa prova. |
+| Nessun disco aggiuntivo o errori | Dopo tre controlli conclusi, ricerca automatica sospesa e Rileva dischi disponibile. Collegare una unità di prova e premere Rileva dischi: rilevamento ripreso, nessuna selezione o cancellazione automatica. |
 | Rilevamento | Modello, seriale, firmware, capacità e metodi corrispondenti; Windows/EFI/paging/programma/rapporti protetti, nessuna modifica ai dischi. |
 | HDD USB e SATA | Scrittura, flush e rilettura completi su dischi di prova; protezioni conservate. |
 | SSD Block Erase | Stato leggibile prima dell'avvio, comando accettato, progresso e completamento confermati; metodo nel rapporto. |

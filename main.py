@@ -72,7 +72,13 @@ def main(argv=None):
     parser.add_argument("--recupera-ssd", type=Path, help=argparse.SUPPRESS)
     parser.add_argument("--disco", type=int, help=argparse.SUPPRESS)
     parser.add_argument("--conferma", help=argparse.SUPPRESS)
+    parser.add_argument("--rimozione-usb-interna", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
+    if args.rimozione_usb_interna:
+        if args.demo or args.diagnostics or args.recupera_ssd:
+            parser.error("La rimozione interna non ammette altre modalità.")
+        from dejavu.usb_removal import helper_main
+        return helper_main(args.rimozione_usb_interna)
     if args.recupera_ssd and (args.demo or args.diagnostics or args.disco is None or not args.conferma):
         parser.error("Recupero SSD: indicare --disco e --conferma, senza altre modalità.")
     if not args.demo:
@@ -138,6 +144,8 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except Exception as error:
+        if "--rimozione-usb-interna" in sys.argv:
+            raise SystemExit(1)
         try:
             from traceback import format_exc
             folder = data_folder()

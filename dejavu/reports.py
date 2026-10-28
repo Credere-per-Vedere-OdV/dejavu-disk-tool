@@ -51,7 +51,8 @@ def save_disk_record(folder: Path, result: JobResult, batch_id: str) -> Path:
 
 
 def save_reports(folder: Path, inventory: Inventory, results: list[JobResult],
-                 concurrency: int, *, batch_id: str | None = None) -> tuple[Path, Path]:
+                 concurrency: int, *, batch_id: str | None = None,
+                 safe_removal=()) -> tuple[Path, Path]:
     folder.mkdir(parents=True, exist_ok=True)
     identifier = batch_id or (datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:8])
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,100}", identifier):
@@ -63,6 +64,7 @@ def save_reports(folder: Path, inventory: Inventory, results: list[JobResult],
                "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
                "simulated": inventory.simulated, "concurrency": concurrency,
                "batch_id": identifier, "documentation": documentation(identifier),
+               "safe_removal": list(safe_removal),
                "policy": "Procedura automatica: HDD Clear con zeri e rilettura integrale; SSD SATA con ATA Sanitize Block Erase o ATA Enhanced Security Erase",
                "coverage": "HDD: spazio indirizzabile esposto al computer. SSD: operazione interna al controller ed esito nativo; nessun conteggio di byte riletti. Non è una certificazione Purge né una diagnosi completa del disco.",
                "protected_disks": [{"number": disk.number, "model": disk.model,
@@ -105,6 +107,16 @@ def save_reports(folder: Path, inventory: Inventory, results: list[JobResult],
                         for disk in inventory.disks if disk.protected)
     framework = documentation_html(payload["documentation"])
     completion = completion_html(payload["documentation"], simulated=inventory.simulated)
+    removal_labels = {"EJECTED": "ESPULSA DA WINDOWS", "SKIPPED": "NON ESEGUITA",
+                      "NOT_CONFIRMED": "RIMOZIONE NON CONFERMATA", "SIMULATED": "SIMULAZIONE"}
+    removal_items = "".join(
+        "<li><strong>Dischi " + escape(", ".join(str(n) for n in item["disk_numbers"]))
+        + " — " + escape(removal_labels.get(item["status"], item["status"])) + "</strong>: "
+        + escape(item["message"]) + "</li>" for item in safe_removal)
+    removal_html = ("<h2>Rimozione sicura delle docking USB</h2><ul>" + removal_items
+        + "</ul><p>Questa sezione riguarda il collegamento USB e non modifica l’esito della cancellazione. "
+        "L’espulsione non spegne fisicamente la docking. Spegnerla prima di sostituire i dischi; "
+        "attendere l’arresto dei dischi meccanici. I dischi SATA interni non vengono espulsi.</p>") if removal_items else ""
     html = f'''<!doctype html><html lang="it"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Rapporto Dejavu {escape(identifier)}</title><style>
     body{{font:16px system-ui,sans-serif;color:#17253b;background:#f2f5f9;margin:0;padding:32px}}
@@ -148,6 +160,7 @@ def save_reports(folder: Path, inventory: Inventory, results: list[JobResult],
     {simulation}<p class="summary"><strong>{counts['SUCCESS']}</strong> completati · <strong>{counts['FAILED']}</strong> non confermati ·
     <strong>{counts['BLOCKED']}</strong> non cancellati · <strong>{counts['CANCELLED']}</strong> interrotti</p>
     <table><thead><tr><th>Disco</th><th>Esito</th><th>Controlli eseguiti</th></tr></thead><tbody>{''.join(rows)}</tbody></table>
+    {removal_html}
     <h2>Procedura e copertura</h2><p>{escape(payload['policy'])}</p><p>{escape(payload['coverage'])}</p>
     <h2>Unità protette</h2><ul>{protected}</ul>
     {framework}
